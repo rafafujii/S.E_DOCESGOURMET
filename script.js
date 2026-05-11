@@ -11,7 +11,6 @@ function formatCurrency(value) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-// Função para remover acentos e facilitar a busca (ex: "limao" acha "limão")
 function removeAcentos(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
@@ -35,9 +34,19 @@ async function loadCatalog() {
                 const priceCento = priceCentoRaw && priceCentoRaw !== "À Consultar" ? parseFloat(priceCentoRaw) : null;
                 const unitPrice = unitPriceRaw && unitPriceRaw !== "À Consultar" ? parseFloat(unitPriceRaw) : null;
                 let imageUrl = cols[4] || "https://via.placeholder.com/250x150.png?text=Sem+Foto";
+                
+                // NOVIDADE: Lê a Coluna F (índice 5) para ver se tem Etiqueta ("Mais Vendido", "Novidade", etc)
+                let badgeText = cols[5] ? cols[5] : null;
 
                 if (!grouped[category]) grouped[category] = { category: category, items: [] };
-                grouped[category].items.push({ id: idCounter++, name: name, priceCento: priceCento, unitPrice: unitPrice, imageUrl: imageUrl });
+                grouped[category].items.push({ 
+                    id: idCounter++, 
+                    name: name, 
+                    priceCento: priceCento, 
+                    unitPrice: unitPrice, 
+                    imageUrl: imageUrl,
+                    badge: badgeText 
+                });
             }
         });
 
@@ -49,10 +58,9 @@ async function loadCatalog() {
     }
 }
 
-// Cria os botões e ativa a barra de pesquisa
 function setupFilters() {
     const filterContainer = document.getElementById('filter-buttons');
-    if (!filterContainer) return; // Segurança caso o HTML não tenha carregado
+    if (!filterContainer) return; 
     
     let html = `<button class="filter-btn active" onclick="setCategory('Todos', this)">Todos</button>`;
     
@@ -62,7 +70,6 @@ function setupFilters() {
     
     filterContainer.innerHTML = html;
 
-    // Monitora o que é digitado na barra
     const searchBar = document.getElementById('search-bar');
     if (searchBar) {
         searchBar.addEventListener('input', (e) => {
@@ -72,28 +79,32 @@ function setupFilters() {
     }
 }
 
-// Muda a categoria clicada
 function setCategory(category, buttonElement) {
     currentCategory = category;
-    
-    // Remove a classe 'active' de todos e coloca no clicado
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     buttonElement.classList.add('active');
-    
     renderMenu();
 }
 
-// Renderiza os produtos filtrados
+// Abre a foto em tela cheia
+function openLightbox(url) {
+    document.getElementById('lightbox-img').src = url;
+    document.getElementById('lightbox').classList.add('show');
+}
+
+// Fecha a foto em tela cheia
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('show');
+}
+
 function renderMenu() {
     const container = document.getElementById('menu-container');
     let html = '';
     let hasProducts = false;
     
     catalog.forEach(category => {
-        // Filtro por botão de categoria
         if (currentCategory !== 'Todos' && category.category !== currentCategory) return;
 
-        // Filtro pela barra de pesquisa (comparando sem acento)
         const filteredItems = category.items.filter(item => 
             removeAcentos(item.name).includes(searchTerm)
         );
@@ -108,13 +119,17 @@ function renderMenu() {
                 let priceText = isConsult ? 'À Consultar' : formatCurrency(item.priceCento || (item.unitPrice * 100)) + ' / Cento';
                 if(item.unitPrice && !item.priceCento) priceText = formatCurrency(item.unitPrice) + ' / Unidade';
 
+                // Gera a faixa vermelha se tiver escrito algo na Coluna F da planilha
+                let badgeHtml = item.badge ? `<div class="badge">${item.badge}</div>` : '';
+
                 let buttonHtml = isConsult 
                     ? `<button class="btn btn-consultar" onclick="consultWhatsApp('${item.name.replace(/'/g, "\\'")}')">Consultar</button>`
                     : `<button class="btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${unitValue}, ${item.unitPrice && !item.priceCento ? true : false})">Adicionar</button>`;
 
                 html += `
                     <div class="product-card">
-                        <img src="${item.imageUrl}" alt="${item.name}" loading="lazy">
+                        ${badgeHtml}
+                        <img src="${item.imageUrl}" alt="${item.name}" loading="lazy" onclick="openLightbox('${item.imageUrl}')">
                         <div class="product-name">${item.name}</div>
                         <div class="product-price">${priceText}</div>
                         ${buttonHtml}
@@ -124,7 +139,6 @@ function renderMenu() {
         }
     });
 
-    // Mostra mensagem se não achar nada na pesquisa
     if (!hasProducts) {
         html = `<p style="text-align:center; padding: 2rem; color: #666; font-size: 1.1rem;">Nenhum doce encontrado. 😕</p>`;
     }
@@ -132,7 +146,6 @@ function renderMenu() {
     container.innerHTML = html;
 }
 
-// --- Restante do código do Carrinho ---
 function toggleMobileCart() {
     document.getElementById('cart-sidebar').classList.toggle('open');
     document.getElementById('cart-overlay').classList.toggle('show');
@@ -160,10 +173,12 @@ function addToCart(id, name, unitPrice, isUnitItem) {
     updateCartUI();
     showToast(`🛒 ${name} adicionado!`);
     
+    // ANIMAÇÃO: Faz o botão do carrinho de celular dar um "pulo"
     const btn = document.getElementById('mobile-cart-btn');
     if(window.innerWidth <= 768) {
-        btn.style.transform = 'scale(1.1)';
-        setTimeout(() => btn.style.transform = 'scale(1)', 200);
+        btn.classList.remove('animate-bounce');
+        void btn.offsetWidth; // Truque para reiniciar a animação
+        btn.classList.add('animate-bounce');
     }
 }
 
