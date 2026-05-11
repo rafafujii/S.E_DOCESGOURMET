@@ -4,12 +4,16 @@ const urlPlanilha = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?t
 
 let cart = {};
 let catalog = [];
-// Variáveis para controlar a busca e o filtro atual
 let searchTerm = '';
 let currentCategory = 'Todos';
 
 function formatCurrency(value) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// Função para remover acentos e facilitar a busca (ex: "limao" acha "limão")
+function removeAcentos(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
 async function loadCatalog() {
@@ -38,16 +42,18 @@ async function loadCatalog() {
         });
 
         catalog = Object.values(grouped);
-        setupFilters(); // Cria os botões assim que os dados chegam
+        setupFilters(); 
         renderMenu();
     } catch (error) {
         container.innerHTML = "<h3 style='padding: 2rem; color: red; text-align:center;'>Erro de conexão. Tente novamente.</h3>";
     }
 }
 
-// Cria os botões de filtro dinamicamente lendo a planilha
+// Cria os botões e ativa a barra de pesquisa
 function setupFilters() {
     const filterContainer = document.getElementById('filter-buttons');
+    if (!filterContainer) return; // Segurança caso o HTML não tenha carregado
+    
     let html = `<button class="filter-btn active" onclick="setCategory('Todos', this)">Todos</button>`;
     
     catalog.forEach(cat => {
@@ -56,40 +62,42 @@ function setupFilters() {
     
     filterContainer.innerHTML = html;
 
-    // Configura o ouvinte da barra de pesquisa
-    document.getElementById('search-bar').addEventListener('input', (e) => {
-        searchTerm = e.target.value.toLowerCase();
-        renderMenu();
-    });
+    // Monitora o que é digitado na barra
+    const searchBar = document.getElementById('search-bar');
+    if (searchBar) {
+        searchBar.addEventListener('input', (e) => {
+            searchTerm = removeAcentos(e.target.value);
+            renderMenu();
+        });
+    }
 }
 
-// Define a categoria atual e muda a cor do botão clicado
+// Muda a categoria clicada
 function setCategory(category, buttonElement) {
     currentCategory = category;
     
-    // Atualiza a classe 'active'
+    // Remove a classe 'active' de todos e coloca no clicado
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     buttonElement.classList.add('active');
     
     renderMenu();
 }
 
-// Renderiza o cardápio aplicando a busca e os filtros
+// Renderiza os produtos filtrados
 function renderMenu() {
     const container = document.getElementById('menu-container');
     let html = '';
     let hasProducts = false;
     
     catalog.forEach(category => {
-        // Se uma categoria específica estiver selecionada e não for esta, ignora
+        // Filtro por botão de categoria
         if (currentCategory !== 'Todos' && category.category !== currentCategory) return;
 
-        // Filtra os itens da categoria baseados na barra de pesquisa
+        // Filtro pela barra de pesquisa (comparando sem acento)
         const filteredItems = category.items.filter(item => 
-            item.name.toLowerCase().includes(searchTerm)
+            removeAcentos(item.name).includes(searchTerm)
         );
 
-        // Só renderiza o título se houver itens sobrando após o filtro
         if (filteredItems.length > 0) {
             hasProducts = true;
             html += `<h2 class="category-title">${category.category}</h2><div class="product-grid">`;
@@ -116,14 +124,15 @@ function renderMenu() {
         }
     });
 
+    // Mostra mensagem se não achar nada na pesquisa
     if (!hasProducts) {
-        html = `<p style="text-align:center; padding: 2rem; color: #666;">Nenhum doce encontrado para "${searchTerm}".</p>`;
+        html = `<p style="text-align:center; padding: 2rem; color: #666; font-size: 1.1rem;">Nenhum doce encontrado. 😕</p>`;
     }
 
     container.innerHTML = html;
 }
 
-// --- Restante do código original do Carrinho ---
+// --- Restante do código do Carrinho ---
 function toggleMobileCart() {
     document.getElementById('cart-sidebar').classList.toggle('open');
     document.getElementById('cart-overlay').classList.toggle('show');
