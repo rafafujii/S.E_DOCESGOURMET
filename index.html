@@ -239,7 +239,8 @@
 
         function showToast(itemName) {
             const toast = document.getElementById("toast");
-            toast.innerText = `🛒 Adicionado!`;
+            // AQUI FOI A ÚNICA ALTERAÇÃO, INCLUINDO A VARIÁVEL itemName NO TEXTO
+            toast.innerText = `🛒 ${itemName} adicionado!`;
             toast.classList.add("show");
             setTimeout(() => toast.classList.remove("show"), 3000);
         }
@@ -271,7 +272,6 @@
             updateCartUI();
         }
 
-        // Função nova para remover o item direto pelo botão "X"
         function removeFromCart(id) {
             delete cart[id];
             updateCartUI();
@@ -307,7 +307,6 @@
                 const itemTotal = item.unitPrice * item.quantity;
                 total += itemTotal;
                 
-                // HTML atualizado com o botão "X" de exclusão
                 cartContainer.innerHTML += `
                     <div class="cart-item">
                         <div class="cart-item-info">
