@@ -25,7 +25,87 @@
         .cart-controls input { width: 60px; padding: 0.2rem; margin-top: 0.5rem; }
         .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 1.5rem 0; text-align: right; }
         .info-box { background: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
-        @media (max-width: 768px) { .container { flex-direction: column; } .cart-sidebar { position: static; } }
+        
+        /* Oculta elementos do Mobile no PC */
+        .mobile-cart-btn { display: none; }
+        .close-cart-btn { display: none; }
+        .cart-header-mobile { display: flex; justify-content: space-between; align-items: center; }
+
+        /* Aviso Flutuante (Toast) */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #25D366; /* Verde do WhatsApp */
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 12px 20px;
+            position: fixed;
+            z-index: 3000;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 90px; /* Fica acima do botão do carrinho no celular */
+        }
+
+        /* REGRAS PARA CELULAR */
+        @media (max-width: 768px) { 
+            .container { flex-direction: column; } 
+            
+            .mobile-cart-btn {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: var(--primary);
+                color: var(--gold);
+                border: none;
+                padding: 15px 25px;
+                border-radius: 50px;
+                font-size: 1.1rem;
+                font-weight: bold;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                z-index: 1000;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .cart-sidebar { 
+                position: fixed;
+                bottom: -100%; 
+                left: 0;
+                width: 100%;
+                height: 80vh; 
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+                z-index: 1001;
+                transition: bottom 0.4s ease-in-out;
+                overflow-y: auto;
+                box-sizing: border-box;
+                margin: 0;
+            }
+
+            .cart-sidebar.open { bottom: 0; }
+
+            .close-cart-btn {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: var(--primary);
+                font-weight: bold;
+                cursor: pointer;
+            }
+        }
     </style>
 </head>
 <body>
@@ -33,10 +113,16 @@
         <h1>S.E_DOCESGOURMET</h1>
         <p>Catálogo Oficial</p>
     </header>
+    
     <div class="container">
         <main class="menu" id="menu-container"></main>
-        <aside class="cart-sidebar">
-            <h2 style="color: var(--primary);">Seu Pedido</h2>
+        
+        <aside class="cart-sidebar" id="cart-sidebar">
+            <div class="cart-header-mobile">
+                <h2 style="color: var(--primary); margin-top: 0;">Seu Pedido</h2>
+                <button class="close-cart-btn" onclick="toggleMobileCart()">X</button>
+            </div>
+            
             <div class="info-box">
                 <strong>Atenção:</strong><br>
                 • Pedido mínimo de 25 unidades por doce.<br>
@@ -48,13 +134,15 @@
         </aside>
     </div>
 
+    <button id="mobile-cart-btn" class="mobile-cart-btn" onclick="toggleMobileCart()">
+        🛒 Ver Carrinho (<span id="mobile-cart-count">0</span>)
+    </button>
+
+    <div id="toast" class="toast">Adicionado ao carrinho!</div>
+
     <script>
-const phone = "44998542446";
-        
-        // Aqui colocamos o ID da sua planilha:
+        const phone = "44998542446";
         const sheetID = "1LnFf7VKaV4CLedmpiLsWtgt_Z9bZJKuyLrPfevybQc0"; 
-        
-        // Esta URL transforma a planilha em um arquivo de dados simples (CSV)
         const urlPlanilha = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
 
         let cart = {};
@@ -72,20 +160,16 @@ const phone = "44998542446";
                 const response = await fetch(urlPlanilha);
                 const csvText = await response.text();
                 
-                // Transforma o texto CSV em uma lista de dados (ignora a primeira linha de cabeçalho)
                 const rows = csvText.split('\n').slice(1);
-                
                 const grouped = {};
                 let idCounter = 1;
 
                 rows.forEach(row => {
-                    // Limpa as aspas extras que o CSV pode colocar
                     const cols = row.split('","').map(col => col.replace(/^"|"$/g, '').trim());
                     
                     if (cols.length >= 2 && cols[1] !== "") {
                         const category = cols[0];
                         const name = cols[1];
-                        // Substitui a vírgula por ponto para o Javascript entender como decimal
                         const priceCentoRaw = cols[2] ? cols[2].replace(',', '.') : "";
                         const unitPriceRaw = cols[3] ? cols[3].replace(',', '.') : "";
                         
@@ -149,9 +233,26 @@ const phone = "44998542446";
             });
         }
 
+        function toggleMobileCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('open');
+        }
+
         function consultWhatsApp(itemName) {
             const msg = encodeURIComponent(`Olá, Eduarda! Gostaria de consultar o valor de: ${itemName}.`);
-            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+            window.open(`https://wa.me/55${phone}?text=${msg}`, '_blank');
+        }
+
+        // Função para mostrar o aviso verde na tela
+        function showToast(itemName) {
+            const toast = document.getElementById("toast");
+            toast.innerText = `🛒 ${itemName} adicionado!`;
+            toast.classList.add("show");
+            
+            // Tira o aviso da tela depois de 3 segundos
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
         }
 
         function addToCart(id, name, unitPrice, isUnitItem) {
@@ -161,6 +262,14 @@ const phone = "44998542446";
                 cart[id].quantity += isUnitItem ? 1 : 25;
             }
             updateCartUI();
+            showToast(name); // Chama o aviso
+            
+            // Efeitinho de "pulo" no botão de carrinho do celular
+            const btn = document.getElementById('mobile-cart-btn');
+            if(window.innerWidth <= 768) {
+                btn.style.transform = 'scale(1.1)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 200);
+            }
         }
 
         function updateQuantity(id, newQty) {
@@ -180,16 +289,24 @@ const phone = "44998542446";
             const cartContainer = document.getElementById('cart-items');
             const totalContainer = document.getElementById('cart-total');
             const checkoutBtn = document.getElementById('checkout-btn');
+            const mobileCartCount = document.getElementById('mobile-cart-count');
             
             cartContainer.innerHTML = '';
             let total = 0;
             const cartKeys = Object.keys(cart);
             
+            mobileCartCount.innerText = cartKeys.length;
+            
             if (cartKeys.length === 0) {
                 cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
                 totalContainer.innerText = 'Total: R$ 0,00';
                 checkoutBtn.disabled = true;
+                document.getElementById('mobile-cart-btn').style.display = 'none';
                 return;
+            } else {
+                if(window.innerWidth <= 768) {
+                    document.getElementById('mobile-cart-btn').style.display = 'block';
+                }
             }
 
             cartKeys.forEach(id => {
@@ -217,7 +334,7 @@ const phone = "44998542446";
                 msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
             });
             msg += `\n*Total do Pedido: ${formatCurrency(total)}*\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.`;
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         loadCatalog();
