@@ -15,10 +15,18 @@
     <div id="cart-overlay" class="cart-overlay" onclick="toggleMobileCart()"></div>
 
     <div class="container">
-        <main class="menu" id="menu-container">
-            <div class="loader-container">
-                <div class="spinner"></div>
-                <h3 style='margin-top: 1rem; color: var(--primary);'>Sincronizando cardápio...</h3>
+        <main class="menu">
+            <div class="controls-container">
+                <input type="text" id="search-bar" placeholder="🔍 Buscar doce (ex: Brigadeiro)...">
+                <div id="filter-buttons" class="filter-buttons">
+                    </div>
+            </div>
+
+            <div id="menu-container">
+                <div class="loader-container">
+                    <div class="spinner"></div>
+                    <h3 style='margin-top: 1rem; color: var(--primary);'>Sincronizando cardápio...</h3>
+                </div>
             </div>
         </main>
         
