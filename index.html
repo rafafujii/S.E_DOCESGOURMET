@@ -20,90 +20,64 @@
         .btn:hover { background: #5a0016; }
         .btn-consultar { background: #25D366; color: white; }
         .btn-consultar:hover { background: #1ebe57; }
-        .cart-sidebar { flex: 1; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #ddd; position: sticky; top: 120px; height: fit-content; }
+        
+        /* Carrinho Desktop: Agora com scroll interno */
+        .cart-sidebar { 
+            flex: 1; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #ddd; 
+            position: sticky; top: 120px; height: fit-content; max-height: calc(100vh - 140px);
+            display: flex; flex-direction: column;
+        }
+        #cart-items { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
+        
         .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
         .cart-controls input { width: 60px; padding: 0.2rem; margin-top: 0.5rem; }
-        .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 1.5rem 0; text-align: right; }
-        .info-box { background: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 1rem 0; text-align: right; }
+        .info-box { background: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; flex-shrink: 0; }
         
         /* Oculta elementos do Mobile no PC */
-        .mobile-cart-btn { display: none; }
-        .close-cart-btn { display: none; }
+        .mobile-cart-btn, .close-cart-btn, .cart-overlay { display: none; }
         .cart-header-mobile { display: flex; justify-content: space-between; align-items: center; }
 
         /* Aviso Flutuante (Toast) */
         .toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #25D366; /* Verde do WhatsApp */
-            color: #fff;
-            text-align: center;
-            border-radius: 50px;
-            padding: 12px 20px;
-            position: fixed;
-            z-index: 3000;
-            left: 50%;
-            bottom: 20px;
-            transform: translateX(-50%);
-            font-size: 1rem;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            opacity: 0;
-            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+            visibility: hidden; min-width: 250px; background-color: #25D366; color: #fff; text-align: center;
+            border-radius: 50px; padding: 12px 20px; position: fixed; z-index: 3000; left: 50%; bottom: 20px;
+            transform: translateX(-50%); font-size: 1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
         }
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 90px; /* Fica acima do botão do carrinho no celular */
-        }
+        .toast.show { visibility: visible; opacity: 1; bottom: 90px; }
 
         /* REGRAS PARA CELULAR */
         @media (max-width: 768px) { 
             .container { flex-direction: column; } 
             
+            /* Fundo escuro quando o carrinho abre */
+            .cart-overlay {
+                display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.6); z-index: 1000;
+            }
+            .cart-overlay.show { display: block; }
+
             .mobile-cart-btn {
-                display: block;
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background-color: var(--primary);
-                color: var(--gold);
-                border: none;
-                padding: 15px 25px;
-                border-radius: 50px;
-                font-size: 1.1rem;
-                font-weight: bold;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-                z-index: 1000;
-                cursor: pointer;
-                transition: transform 0.2s;
+                display: block; position: fixed; bottom: 20px; right: 20px; background-color: var(--primary);
+                color: var(--gold); border: none; padding: 15px 25px; border-radius: 50px; font-size: 1.1rem;
+                font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 1000; cursor: pointer;
             }
 
+            /* Carrinho estilo "Gaveta" que sobe do fundo */
             .cart-sidebar { 
-                position: fixed;
-                bottom: -100%; 
-                left: 0;
-                width: 100%;
-                height: 80vh; 
-                border-radius: 20px 20px 0 0;
-                box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-                z-index: 1001;
-                transition: bottom 0.4s ease-in-out;
-                overflow-y: auto;
-                box-sizing: border-box;
-                margin: 0;
+                position: fixed; bottom: -100%; top: auto; left: 0; width: 100%; 
+                height: auto; max-height: 65vh; /* Ocupa no máximo 65% da tela */
+                border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+                z-index: 1001; transition: bottom 0.3s ease-in-out; margin: 0;
             }
 
             .cart-sidebar.open { bottom: 0; }
 
+            /* Botão X Maior para facilitar o toque */
             .close-cart-btn {
-                display: block;
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                color: var(--primary);
-                font-weight: bold;
-                cursor: pointer;
+                display: block; background: none; border: none; font-size: 2rem; color: var(--primary);
+                font-weight: bold; cursor: pointer; padding: 0 10px; margin-top: -10px;
             }
         }
     </style>
@@ -114,13 +88,15 @@
         <p>Catálogo Oficial</p>
     </header>
     
+    <div id="cart-overlay" class="cart-overlay" onclick="toggleMobileCart()"></div>
+
     <div class="container">
         <main class="menu" id="menu-container"></main>
         
         <aside class="cart-sidebar" id="cart-sidebar">
             <div class="cart-header-mobile">
                 <h2 style="color: var(--primary); margin-top: 0;">Seu Pedido</h2>
-                <button class="close-cart-btn" onclick="toggleMobileCart()">X</button>
+                <button class="close-cart-btn" onclick="toggleMobileCart()">&times;</button>
             </div>
             
             <div class="info-box">
@@ -128,7 +104,9 @@
                 • Pedido mínimo de 25 unidades por doce.<br>
                 • Encomendas com frutas requerem 4 dias de antecedência.
             </div>
+            
             <div id="cart-items"><p>Seu carrinho está vazio.</p></div>
+            
             <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
             <button class="btn" onclick="checkout()" id="checkout-btn" disabled>Finalizar Pedido (WhatsApp)</button>
         </aside>
@@ -159,41 +137,29 @@
             try {
                 const response = await fetch(urlPlanilha);
                 const csvText = await response.text();
-                
                 const rows = csvText.split('\n').slice(1);
                 const grouped = {};
                 let idCounter = 1;
 
                 rows.forEach(row => {
                     const cols = row.split('","').map(col => col.replace(/^"|"$/g, '').trim());
-                    
                     if (cols.length >= 2 && cols[1] !== "") {
                         const category = cols[0];
                         const name = cols[1];
                         const priceCentoRaw = cols[2] ? cols[2].replace(',', '.') : "";
                         const unitPriceRaw = cols[3] ? cols[3].replace(',', '.') : "";
-                        
                         const priceCento = priceCentoRaw && priceCentoRaw !== "À Consultar" ? parseFloat(priceCentoRaw) : null;
                         const unitPrice = unitPriceRaw && unitPriceRaw !== "À Consultar" ? parseFloat(unitPriceRaw) : null;
-                        
                         let imageUrl = cols[4] || "https://via.placeholder.com/250x150.png?text=Sem+Foto";
 
                         if (!grouped[category]) grouped[category] = { category: category, items: [] };
-                        
-                        grouped[category].items.push({
-                            id: idCounter++,
-                            name: name,
-                            priceCento: priceCento,
-                            unitPrice: unitPrice,
-                            imageUrl: imageUrl
-                        });
+                        grouped[category].items.push({ id: idCounter++, name: name, priceCento: priceCento, unitPrice: unitPrice, imageUrl: imageUrl });
                     }
                 });
 
                 catalog = Object.values(grouped);
                 renderMenu();
             } catch (error) {
-                console.error("Erro na leitura do CSV:", error);
                 container.innerHTML = "<h3 style='padding: 2rem; color: red;'>Erro de conexão. Tente novamente.</h3>";
             }
         }
@@ -211,7 +177,6 @@
                 category.items.forEach(item => {
                     const isConsult = item.priceCento === null && item.unitPrice === null;
                     const unitValue = item.unitPrice ? item.unitPrice : (item.priceCento ? item.priceCento / 100 : 0);
-                    
                     let priceText = isConsult ? 'À Consultar' : formatCurrency(item.priceCento || (item.unitPrice * 100)) + ' / Cento';
                     if(item.unitPrice && !item.priceCento) priceText = formatCurrency(item.unitPrice) + ' / Unidade';
 
@@ -234,8 +199,8 @@
         }
 
         function toggleMobileCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            sidebar.classList.toggle('open');
+            document.getElementById('cart-sidebar').classList.toggle('open');
+            document.getElementById('cart-overlay').classList.toggle('show');
         }
 
         function consultWhatsApp(itemName) {
@@ -243,28 +208,20 @@
             window.open(`https://wa.me/55${phone}?text=${msg}`, '_blank');
         }
 
-        // Função para mostrar o aviso verde na tela
         function showToast(itemName) {
             const toast = document.getElementById("toast");
             toast.innerText = `🛒 ${itemName} adicionado!`;
             toast.classList.add("show");
-            
-            // Tira o aviso da tela depois de 3 segundos
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 3000);
+            setTimeout(() => toast.classList.remove("show"), 3000);
         }
 
         function addToCart(id, name, unitPrice, isUnitItem) {
-            if (!cart[id]) {
-                cart[id] = { name, unitPrice, quantity: isUnitItem ? 1 : 25, isUnitItem };
-            } else {
-                cart[id].quantity += isUnitItem ? 1 : 25;
-            }
-            updateCartUI();
-            showToast(name); // Chama o aviso
+            if (!cart[id]) cart[id] = { name, unitPrice, quantity: isUnitItem ? 1 : 25, isUnitItem };
+            else cart[id].quantity += isUnitItem ? 1 : 25;
             
-            // Efeitinho de "pulo" no botão de carrinho do celular
+            updateCartUI();
+            showToast(name);
+            
             const btn = document.getElementById('mobile-cart-btn');
             if(window.innerWidth <= 768) {
                 btn.style.transform = 'scale(1.1)';
@@ -301,12 +258,14 @@
                 cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
                 totalContainer.innerText = 'Total: R$ 0,00';
                 checkoutBtn.disabled = true;
+                
+                // Esconde o botão se o carrinho esvaziar e fecha a aba se estiver aberta
                 document.getElementById('mobile-cart-btn').style.display = 'none';
+                document.getElementById('cart-sidebar').classList.remove('open');
+                document.getElementById('cart-overlay').classList.remove('show');
                 return;
             } else {
-                if(window.innerWidth <= 768) {
-                    document.getElementById('mobile-cart-btn').style.display = 'block';
-                }
+                if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
             }
 
             cartKeys.forEach(id => {
