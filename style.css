@@ -3,7 +3,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); co
 
 /* EFEITO VIDRO FOSCO NO CABEÇALHO (Glassmorphism) */
 header { 
-    background: rgba(102, 9, 32, 0.85); /* Vinho transparente */
+    background: rgba(102, 9, 32, 0.92); /* Vinho transparente */
     backdrop-filter: blur(10px); /* O "borrado" do vidro */
     -webkit-backdrop-filter: blur(10px);
     color: var(--gold); 
