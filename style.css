@@ -3,7 +3,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); co
 
 /* CABEÇALHO VIDRO FOSCO */
 header { 
-    background: rgba(220, 0, 32, 1.0); /* Cor original. Mude para rgba(0,0,0,0.85) se quiser preto */
+    background: rgba(132, 0, 32, 1.0); /* Cor original. Mude para rgba(0,0,0,0.85) se quiser preto */
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     color: var(--gold); 
