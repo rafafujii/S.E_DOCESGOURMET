@@ -1,80 +1,45 @@
 :root { --primary: #800020; --gold: #D4AF37; --light: #FDFBF7; --text: #333; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); color: var(--text); margin: 0; padding: 0; }
-header { background: var(--primary); color: var(--gold); text-align: center; padding: 2rem 1rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+/* EFEITO VIDRO FOSCO NO CABEÇALHO (Glassmorphism) */
+header { 
+    background: rgba(128, 0, 32, 0.85); /* Vinho transparente */
+    backdrop-filter: blur(10px); /* O "borrado" do vidro */
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--gold); 
+    text-align: center; 
+    padding: 2rem 1rem; 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+}
+
 .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; display: flex; gap: 2rem; }
 .menu { flex: 2; }
 
-/* ======== BUSCA E FILTROS (ESTILO APP) ======== */
-.search-filter-section {
-    background: #fff;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
-    border: 1px solid #ddd;
-}
-.search-box {
-    display: flex;
-    align-items: center;
-    background: #f1f1f1;
-    border-radius: 50px;
-    padding: 0.6rem 1.2rem;
-    margin-bottom: 1rem;
-    border: 2px solid transparent;
-    transition: 0.3s ease;
-}
-.search-box:focus-within {
-    border-color: var(--primary);
-    background: #fff;
-}
-.search-icon {
-    font-size: 1.2rem;
-    margin-right: 0.8rem;
-    color: #666;
-}
-#search-bar {
-    border: none;
-    background: transparent;
-    width: 100%;
-    font-size: 1rem;
-    outline: none;
-    color: var(--text);
-}
-.filter-buttons {
-    display: flex;
-    gap: 0.8rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    scrollbar-width: none; /* Oculta barra no Firefox */
-}
-.filter-buttons::-webkit-scrollbar { display: none; } /* Oculta barra no Chrome/Safari */
-.filter-btn {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid var(--primary);
-    background: #fff;
-    color: var(--primary);
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: bold;
-    white-space: nowrap;
-    transition: 0.3s;
-    font-size: 0.9rem;
-}
-.filter-btn.active {
-    background: var(--primary);
-    color: var(--gold);
-    border-color: var(--primary);
-}
-.filter-btn:hover:not(.active) {
-    background: #f9e6ea;
-}
-/* ============================================== */
+/* BUSCA E FILTROS */
+.search-filter-section { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid #ddd; }
+.search-box { display: flex; align-items: center; background: #f1f1f1; border-radius: 50px; padding: 0.6rem 1.2rem; margin-bottom: 1rem; border: 2px solid transparent; transition: 0.3s ease; }
+.search-box:focus-within { border-color: var(--primary); background: #fff; }
+.search-icon { font-size: 1.2rem; margin-right: 0.8rem; color: #666; }
+#search-bar { border: none; background: transparent; width: 100%; font-size: 1rem; outline: none; color: var(--text); }
+.filter-buttons { display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: none; }
+.filter-buttons::-webkit-scrollbar { display: none; }
+.filter-btn { padding: 0.6rem 1.2rem; border: 1px solid var(--primary); background: #fff; color: var(--primary); border-radius: 50px; cursor: pointer; font-weight: bold; white-space: nowrap; transition: 0.3s; font-size: 0.9rem; }
+.filter-btn.active { background: var(--primary); color: var(--gold); border-color: var(--primary); }
+.filter-btn:hover:not(.active) { background: #f9e6ea; }
 
+/* PRODUTOS E ETIQUETAS */
 .category-title { color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem; margin-top: 1rem; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
-.product-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s;}
+.product-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s; position: relative; overflow: hidden; }
 .product-card:hover { transform: translateY(-5px); }
-.product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; }
+.product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; cursor: zoom-in; }
+
+/* Etiqueta Flutuante (Badge) */
+.badge { position: absolute; top: 15px; right: -30px; background: #ff4d4d; color: white; padding: 5px 35px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; letter-spacing: 1px; }
+
 .product-name { font-weight: bold; margin: 1rem 0 0.5rem; min-height: 40px; }
 .product-price { color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; }
 .btn { background: var(--primary); color: var(--gold); border: none; padding: 0.7rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
@@ -82,6 +47,13 @@ header { background: var(--primary); color: var(--gold); text-align: center; pad
 .btn:disabled { background: #ccc; color: #666; cursor: not-allowed; }
 .btn-consultar { background: #25D366; color: white; }
 .btn-consultar:hover { background: #1ebe57; }
+
+/* LIGHTBOX (VISUALIZADOR DE FOTO) */
+.lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; justify-content: center; align-items: center; }
+.lightbox.show { display: flex; animation: fadeIn 0.3s; }
+.lightbox img { max-width: 90%; max-height: 80%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 2px solid var(--gold); }
+.close-lightbox { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* CARRINHO */
 .cart-sidebar { flex: 1; background: #fff; border-radius: 8px; border: 1px solid #ddd; position: sticky; top: 120px; height: fit-content; max-height: calc(100vh - 140px); display: flex; flex-direction: column; }
@@ -97,15 +69,24 @@ header { background: var(--primary); color: var(--gold); text-align: center; pad
 .btn-remove { background: #ff4d4d; color: white; border: none; border-radius: 4px; width: 26px; height: 26px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
 .btn-remove:hover { background: #cc0000; }
 .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; text-align: right; }
-.mobile-cart-btn, .close-cart-btn, .cart-overlay { display: none; }
 
-/* SPINNER E TOAST */
+/* RODAPÉ (FOOTER) */
+footer { background: var(--primary); color: var(--light); text-align: center; padding: 3rem 1rem; margin-top: 3rem; border-top: 5px solid var(--gold); }
+footer h3 { margin: 0 0 0.5rem 0; color: var(--gold); }
+.instagram-btn { display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; transition: transform 0.3s, box-shadow 0.3s; }
+.instagram-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(220, 39, 67, 0.4); }
+
+.mobile-cart-btn, .close-cart-btn, .cart-overlay { display: none; }
 .loader-container { text-align: center; padding: 3rem; }
 .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .toast { visibility: hidden; min-width: 250px; background-color: #25D366; color: #fff; text-align: center; border-radius: 50px; padding: 12px 20px; position: fixed; z-index: 3000; left: 50%; bottom: 20px; transform: translateX(-50%); font-size: 1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s; }
 .toast.show { visibility: visible; opacity: 1; bottom: 90px; }
 .toast.warning { background-color: #ff4d4d; }
+
+/* ANIMAÇÃO DE PULO DO CARRINHO */
+@keyframes cartBounce { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.animate-bounce { animation: cartBounce 0.4s ease-in-out; }
 
 /* CELULAR */
 @media (max-width: 768px) { 
