@@ -4,6 +4,9 @@ const urlPlanilha = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?t
 
 let cart = {};
 let catalog = [];
+// Variáveis para controlar a busca e o filtro atual
+let searchTerm = '';
+let currentCategory = 'Todos';
 
 function formatCurrency(value) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -35,44 +38,92 @@ async function loadCatalog() {
         });
 
         catalog = Object.values(grouped);
+        setupFilters(); // Cria os botões assim que os dados chegam
         renderMenu();
     } catch (error) {
         container.innerHTML = "<h3 style='padding: 2rem; color: red; text-align:center;'>Erro de conexão. Tente novamente.</h3>";
     }
 }
 
-// Renderiza o cardápio de forma rápida na tela
+// Cria os botões de filtro dinamicamente lendo a planilha
+function setupFilters() {
+    const filterContainer = document.getElementById('filter-buttons');
+    let html = `<button class="filter-btn active" onclick="setCategory('Todos', this)">Todos</button>`;
+    
+    catalog.forEach(cat => {
+        html += `<button class="filter-btn" onclick="setCategory('${cat.category}', this)">${cat.category}</button>`;
+    });
+    
+    filterContainer.innerHTML = html;
+
+    // Configura o ouvinte da barra de pesquisa
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+        searchTerm = e.target.value.toLowerCase();
+        renderMenu();
+    });
+}
+
+// Define a categoria atual e muda a cor do botão clicado
+function setCategory(category, buttonElement) {
+    currentCategory = category;
+    
+    // Atualiza a classe 'active'
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    buttonElement.classList.add('active');
+    
+    renderMenu();
+}
+
+// Renderiza o cardápio aplicando a busca e os filtros
 function renderMenu() {
     const container = document.getElementById('menu-container');
     let html = '';
+    let hasProducts = false;
     
     catalog.forEach(category => {
-        html += `<h2 class="category-title">${category.category}</h2><div class="product-grid">`;
+        // Se uma categoria específica estiver selecionada e não for esta, ignora
+        if (currentCategory !== 'Todos' && category.category !== currentCategory) return;
 
-        category.items.forEach(item => {
-            const isConsult = item.priceCento === null && item.unitPrice === null;
-            const unitValue = item.unitPrice ? item.unitPrice : (item.priceCento ? item.priceCento / 100 : 0);
-            let priceText = isConsult ? 'À Consultar' : formatCurrency(item.priceCento || (item.unitPrice * 100)) + ' / Cento';
-            if(item.unitPrice && !item.priceCento) priceText = formatCurrency(item.unitPrice) + ' / Unidade';
+        // Filtra os itens da categoria baseados na barra de pesquisa
+        const filteredItems = category.items.filter(item => 
+            item.name.toLowerCase().includes(searchTerm)
+        );
 
-            let buttonHtml = isConsult 
-                ? `<button class="btn btn-consultar" onclick="consultWhatsApp('${item.name.replace(/'/g, "\\'")}')">Consultar no WhatsApp</button>`
-                : `<button class="btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${unitValue}, ${item.unitPrice && !item.priceCento ? true : false})">Adicionar</button>`;
+        // Só renderiza o título se houver itens sobrando após o filtro
+        if (filteredItems.length > 0) {
+            hasProducts = true;
+            html += `<h2 class="category-title">${category.category}</h2><div class="product-grid">`;
 
-            html += `
-                <div class="product-card">
-                    <img src="${item.imageUrl}" alt="${item.name}" loading="lazy">
-                    <div class="product-name">${item.name}</div>
-                    <div class="product-price">${priceText}</div>
-                    ${buttonHtml}
-                </div>`;
-        });
-        html += `</div>`;
+            filteredItems.forEach(item => {
+                const isConsult = item.priceCento === null && item.unitPrice === null;
+                const unitValue = item.unitPrice ? item.unitPrice : (item.priceCento ? item.priceCento / 100 : 0);
+                let priceText = isConsult ? 'À Consultar' : formatCurrency(item.priceCento || (item.unitPrice * 100)) + ' / Cento';
+                if(item.unitPrice && !item.priceCento) priceText = formatCurrency(item.unitPrice) + ' / Unidade';
+
+                let buttonHtml = isConsult 
+                    ? `<button class="btn btn-consultar" onclick="consultWhatsApp('${item.name.replace(/'/g, "\\'")}')">Consultar</button>`
+                    : `<button class="btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${unitValue}, ${item.unitPrice && !item.priceCento ? true : false})">Adicionar</button>`;
+
+                html += `
+                    <div class="product-card">
+                        <img src="${item.imageUrl}" alt="${item.name}" loading="lazy">
+                        <div class="product-name">${item.name}</div>
+                        <div class="product-price">${priceText}</div>
+                        ${buttonHtml}
+                    </div>`;
+            });
+            html += `</div>`;
+        }
     });
+
+    if (!hasProducts) {
+        html = `<p style="text-align:center; padding: 2rem; color: #666;">Nenhum doce encontrado para "${searchTerm}".</p>`;
+    }
+
     container.innerHTML = html;
 }
 
-// Lógica direta do clique original para garantir funcionamento
+// --- Restante do código original do Carrinho ---
 function toggleMobileCart() {
     document.getElementById('cart-sidebar').classList.toggle('open');
     document.getElementById('cart-overlay').classList.toggle('show');
@@ -142,7 +193,6 @@ function updateCartUI() {
         totalContainer.innerText = 'Total: R$ 0,00';
         checkoutBtn.disabled = true;
         
-        // AQUI ESTÁ A CORREÇÃO PRINCIPAL: FECHA TUDO SE ZERAR
         document.getElementById('mobile-cart-btn').style.display = 'none';
         document.getElementById('cart-sidebar').classList.remove('open');
         document.getElementById('cart-overlay').classList.remove('show');
