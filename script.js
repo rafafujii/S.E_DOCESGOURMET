@@ -113,6 +113,10 @@ function updateCartUI() {
         DOM.cartTotal.innerText = 'Total: R$ 0,00';
         DOM.checkoutBtn.disabled = true;
         DOM.mobileBtn.style.display = 'none';
+        
+        // CORREÇÃO: Força a aba do carrinho a fechar e remove a tela travada quando o último doce é removido
+        DOM.sidebar.classList.remove('open');
+        DOM.overlay.classList.remove('show');
         return;
     }
 
@@ -162,8 +166,11 @@ function checkout() {
 }
 
 function toggleMobileCart() {
-    DOM.sidebar.classList.toggle('open');
-    DOM.overlay.classList.toggle('show');
+    // Adicionado uma checagem de segurança para garantir que não vai falhar se clicar fora
+    if (DOM.sidebar && DOM.overlay) {
+        DOM.sidebar.classList.toggle('open');
+        DOM.overlay.classList.toggle('show');
+    }
 }
 
 // Inicialização
