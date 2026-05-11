@@ -1,9 +1,10 @@
 :root { --primary: #800020; --gold: #D4AF37; --light: #FDFBF7; --text: #333; }
-body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); color: var(--text); margin: 0; padding: 0; }
+/* Adicionado overflow-x para evitar rolagem lateral indesejada */
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
 
-/* CABEÇALHO VIDRO FOSCO */
+/* CABEÇALHO VIDRO FOSCO (Agora forçado a 100% da tela) */
 header { 
-    background: rgba(132, 0, 32, 1.0); /* Cor original. Mude para rgba(0,0,0,0.85) se quiser preto */
+    background: rgba(128, 0, 32, 0.85); 
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     color: var(--gold); 
@@ -11,11 +12,13 @@ header {
     padding: 2rem 1rem; 
     position: sticky; 
     top: 0; 
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
     z-index: 100; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
 }
 
-/* NOVO: Estilo do ícone do Instagram no Header */
 .header-instagram {
     display: inline-flex;
     margin-top: 12px;
@@ -46,7 +49,7 @@ header {
 .filter-btn.active { background: var(--primary); color: var(--gold); border-color: var(--primary); }
 .filter-btn:hover:not(.active) { background: #f9e6ea; }
 
-/* PRODUTOS */
+/* PRODUTOS E ETIQUETAS */
 .category-title { color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem; margin-top: 1rem; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
 .product-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s; position: relative; overflow: hidden; }
@@ -99,8 +102,8 @@ footer h3 { margin: 0 0 0.5rem 0; color: var(--gold); }
 @keyframes cartBounce { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .animate-bounce { animation: cartBounce 0.4s ease-in-out; }
 
-/* CELULAR */
-@media (max-width: 768px) { 
+/* TABLET E CELULAR (Aumentado para 1024px para cobrir tablets deitados) */
+@media (max-width: 1024px) { 
     .container { flex-direction: column; } 
     .cart-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
     .cart-overlay.show { display: block; }
