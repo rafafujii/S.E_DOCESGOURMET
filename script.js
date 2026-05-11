@@ -34,8 +34,6 @@ async function loadCatalog() {
                 const priceCento = priceCentoRaw && priceCentoRaw !== "À Consultar" ? parseFloat(priceCentoRaw) : null;
                 const unitPrice = unitPriceRaw && unitPriceRaw !== "À Consultar" ? parseFloat(unitPriceRaw) : null;
                 let imageUrl = cols[4] || "https://via.placeholder.com/250x150.png?text=Sem+Foto";
-                
-                // NOVIDADE: Lê a Coluna F (índice 5) para ver se tem Etiqueta ("Mais Vendido", "Novidade", etc)
                 let badgeText = cols[5] ? cols[5] : null;
 
                 if (!grouped[category]) grouped[category] = { category: category, items: [] };
@@ -61,15 +59,11 @@ async function loadCatalog() {
 function setupFilters() {
     const filterContainer = document.getElementById('filter-buttons');
     if (!filterContainer) return; 
-    
     let html = `<button class="filter-btn active" onclick="setCategory('Todos', this)">Todos</button>`;
-    
     catalog.forEach(cat => {
         html += `<button class="filter-btn" onclick="setCategory('${cat.category}', this)">${cat.category}</button>`;
     });
-    
     filterContainer.innerHTML = html;
-
     const searchBar = document.getElementById('search-bar');
     if (searchBar) {
         searchBar.addEventListener('input', (e) => {
@@ -86,13 +80,11 @@ function setCategory(category, buttonElement) {
     renderMenu();
 }
 
-// Abre a foto em tela cheia
 function openLightbox(url) {
     document.getElementById('lightbox-img').src = url;
     document.getElementById('lightbox').classList.add('show');
 }
 
-// Fecha a foto em tela cheia
 function closeLightbox() {
     document.getElementById('lightbox').classList.remove('show');
 }
@@ -101,31 +93,23 @@ function renderMenu() {
     const container = document.getElementById('menu-container');
     let html = '';
     let hasProducts = false;
-    
     catalog.forEach(category => {
         if (currentCategory !== 'Todos' && category.category !== currentCategory) return;
-
         const filteredItems = category.items.filter(item => 
             removeAcentos(item.name).includes(searchTerm)
         );
-
         if (filteredItems.length > 0) {
             hasProducts = true;
             html += `<h2 class="category-title">${category.category}</h2><div class="product-grid">`;
-
             filteredItems.forEach(item => {
                 const isConsult = item.priceCento === null && item.unitPrice === null;
                 const unitValue = item.unitPrice ? item.unitPrice : (item.priceCento ? item.priceCento / 100 : 0);
                 let priceText = isConsult ? 'À Consultar' : formatCurrency(item.priceCento || (item.unitPrice * 100)) + ' / Cento';
                 if(item.unitPrice && !item.priceCento) priceText = formatCurrency(item.unitPrice) + ' / Unidade';
-
-                // Gera a faixa vermelha se tiver escrito algo na Coluna F da planilha
                 let badgeHtml = item.badge ? `<div class="badge">${item.badge}</div>` : '';
-
                 let buttonHtml = isConsult 
                     ? `<button class="btn btn-consultar" onclick="consultWhatsApp('${item.name.replace(/'/g, "\\'")}')">Consultar</button>`
                     : `<button class="btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${unitValue}, ${item.unitPrice && !item.priceCento ? true : false})">Adicionar</button>`;
-
                 html += `
                     <div class="product-card">
                         ${badgeHtml}
@@ -138,11 +122,9 @@ function renderMenu() {
             html += `</div>`;
         }
     });
-
     if (!hasProducts) {
         html = `<p style="text-align:center; padding: 2rem; color: #666; font-size: 1.1rem;">Nenhum doce encontrado. 😕</p>`;
     }
-
     container.innerHTML = html;
 }
 
@@ -161,7 +143,6 @@ function showToast(msg, isWarning = false) {
     toast.innerText = msg;
     if(isWarning) toast.classList.add("warning");
     else toast.classList.remove("warning");
-    
     toast.classList.add("show");
     setTimeout(() => toast.classList.remove("show"), 3000);
 }
@@ -169,15 +150,12 @@ function showToast(msg, isWarning = false) {
 function addToCart(id, name, unitPrice, isUnitItem) {
     if (!cart[id]) cart[id] = { name, unitPrice, quantity: isUnitItem ? 1 : 25, isUnitItem };
     else cart[id].quantity += isUnitItem ? 1 : 25;
-    
     updateCartUI();
     showToast(`🛒 ${name} adicionado!`);
-    
-    // ANIMAÇÃO: Faz o botão do carrinho de celular dar um "pulo"
     const btn = document.getElementById('mobile-cart-btn');
     if(window.innerWidth <= 768) {
         btn.classList.remove('animate-bounce');
-        void btn.offsetWidth; // Truque para reiniciar a animação
+        void btn.offsetWidth; 
         btn.classList.add('animate-bounce');
     }
 }
@@ -186,12 +164,10 @@ function updateQuantity(id, newQty) {
     const item = cart[id];
     newQty = parseInt(newQty);
     if (newQty < 0) return;
-    
     if (!item.isUnitItem && newQty > 0 && newQty < 25) {
         showToast("O pedido mínimo é de 25 unidades.", true);
         newQty = 25;
     }
-    
     if (newQty === 0) delete cart[id];
     else cart[id].quantity = newQty;
     updateCartUI();
@@ -207,16 +183,13 @@ function updateCartUI() {
     const totalContainer = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
     const mobileCartCount = document.getElementById('mobile-cart-count');
-    
     let total = 0;
     const cartKeys = Object.keys(cart);
     mobileCartCount.innerText = cartKeys.length;
-    
     if (cartKeys.length === 0) {
         cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
         totalContainer.innerText = 'Total: R$ 0,00';
         checkoutBtn.disabled = true;
-        
         document.getElementById('mobile-cart-btn').style.display = 'none';
         document.getElementById('cart-sidebar').classList.remove('open');
         document.getElementById('cart-overlay').classList.remove('show');
@@ -224,13 +197,11 @@ function updateCartUI() {
     } else {
         if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
     }
-
     let cartHtml = '';
     cartKeys.forEach(id => {
         const item = cart[id];
         const itemTotal = item.unitPrice * item.quantity;
         total += itemTotal;
-        
         cartHtml += `
             <div class="cart-item">
                 <div class="cart-item-info">
@@ -246,7 +217,6 @@ function updateCartUI() {
             </div>
         `;
     });
-    
     cartContainer.innerHTML = cartHtml;
     totalContainer.innerText = `Total: ${formatCurrency(total)}`;
     checkoutBtn.disabled = false;
