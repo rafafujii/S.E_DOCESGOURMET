@@ -186,6 +186,7 @@ function updateCartUI() {
     let total = 0;
     const cartKeys = Object.keys(cart);
     mobileCartCount.innerText = cartKeys.length;
+    
     if (cartKeys.length === 0) {
         cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
         totalContainer.innerText = 'Total: R$ 0,00';
@@ -197,6 +198,7 @@ function updateCartUI() {
     } else {
         if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
     }
+    
     let cartHtml = '';
     cartKeys.forEach(id => {
         const item = cart[id];
@@ -222,8 +224,37 @@ function updateCartUI() {
     checkoutBtn.disabled = false;
 }
 
-function checkout() {
-    let msg = "Olá, Eduarda! Gostaria de fazer o seguinte pedido:\n\n";
+// ---------------- LÓGICA NOVA: MODAL DE CHECKOUT ----------------
+
+function openCheckoutModal() {
+    // Abre a janela de formulário
+    document.getElementById('checkout-modal').classList.add('show');
+}
+
+function closeCheckoutModal() {
+    // Fecha a janela de formulário
+    document.getElementById('checkout-modal').classList.remove('show');
+}
+
+function sendOrder() {
+    // Pega os valores preenchidos pelo cliente
+    const name = document.getElementById('customer-name').value.trim();
+    const dateInput = document.getElementById('order-date').value;
+    const time = document.getElementById('order-time').value;
+
+    // Validação de segurança: Impede o envio se estiver faltando algo
+    if (!name || !dateInput || !time) {
+        showToast("Por favor, preencha todos os campos!", true);
+        return;
+    }
+
+    // O HTML devolve a data em AAAA-MM-DD. Vamos inverter para DD/MM/AAAA para o WhatsApp
+    const dateParts = dateInput.split('-');
+    const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+    // Constrói a mensagem final pro WhatsApp
+    let msg = `Olá, Eduarda! Meu nome é *${name}* e gostaria de fazer o seguinte pedido:\n\n`;
+    
     let total = 0;
     Object.keys(cart).forEach(id => {
         const item = cart[id];
@@ -231,8 +262,23 @@ function checkout() {
         total += itemTotal;
         msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
     });
-    msg += `\n*Total do Pedido: ${formatCurrency(total)}*\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.\n\n*Chave PIX (CPF):* 039.722.899-60`;
+    
+    msg += `\n*Total do Pedido: ${formatCurrency(total)}*`;
+    
+    // Adiciona a Data e Hora escolhida
+    msg += `\n\n*📅 Data para entrega/retirada:* ${formattedDate}`;
+    msg += `\n*⏰ Horário:* ${time}`;
+    
+    msg += `\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.\n\n*Chave PIX (CPF):* 039.722.899-60`;
+    
+    // Dispara pro WhatsApp e fecha as telas
     window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    closeCheckoutModal();
+    
+    // Fecha também o carrinho do celular se estiver aberto
+    document.getElementById('cart-sidebar').classList.remove('open');
+    document.getElementById('cart-overlay').classList.remove('show');
 }
 
+// Inicia puxando o cardápio
 loadCatalog();
