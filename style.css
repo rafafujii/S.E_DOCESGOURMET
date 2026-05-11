@@ -1,10 +1,10 @@
 :root { --primary: #800020; --gold: #D4AF37; --light: #FDFBF7; --text: #333; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); color: var(--text); margin: 0; padding: 0; }
 
-/* EFEITO VIDRO FOSCO NO CABEÇALHO (Glassmorphism) */
+/* CABEÇALHO VIDRO FOSCO */
 header { 
-    background: rgba(102, 9, 32, 0.92); /* Vinho transparente */
-    backdrop-filter: blur(10px); /* O "borrado" do vidro */
+    background: rgba(128, 0, 32, 0.85); /* Cor original. Mude para rgba(0,0,0,0.85) se quiser preto */
+    backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     color: var(--gold); 
     text-align: center; 
@@ -13,6 +13,22 @@ header {
     top: 0; 
     z-index: 100; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+}
+
+/* NOVO: Estilo do ícone do Instagram no Header */
+.header-instagram {
+    display: inline-flex;
+    margin-top: 12px;
+    color: var(--gold);
+    text-decoration: none;
+    transition: transform 0.3s ease;
+    padding: 5px;
+}
+.header-instagram:hover {
+    transform: scale(1.2);
+}
+.header-instagram svg {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; display: flex; gap: 2rem; }
@@ -30,16 +46,13 @@ header {
 .filter-btn.active { background: var(--primary); color: var(--gold); border-color: var(--primary); }
 .filter-btn:hover:not(.active) { background: #f9e6ea; }
 
-/* PRODUTOS E ETIQUETAS */
+/* PRODUTOS */
 .category-title { color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem; margin-top: 1rem; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
 .product-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s; position: relative; overflow: hidden; }
 .product-card:hover { transform: translateY(-5px); }
 .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; cursor: zoom-in; }
-
-/* Etiqueta Flutuante (Badge) */
 .badge { position: absolute; top: 15px; right: -30px; background: #ff4d4d; color: white; padding: 5px 35px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; letter-spacing: 1px; }
-
 .product-name { font-weight: bold; margin: 1rem 0 0.5rem; min-height: 40px; }
 .product-price { color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; }
 .btn { background: var(--primary); color: var(--gold); border: none; padding: 0.7rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
@@ -48,7 +61,7 @@ header {
 .btn-consultar { background: #25D366; color: white; }
 .btn-consultar:hover { background: #1ebe57; }
 
-/* LIGHTBOX (VISUALIZADOR DE FOTO) */
+/* LIGHTBOX */
 .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; justify-content: center; align-items: center; }
 .lightbox.show { display: flex; animation: fadeIn 0.3s; }
 .lightbox img { max-width: 90%; max-height: 80%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 2px solid var(--gold); }
@@ -70,11 +83,11 @@ header {
 .btn-remove:hover { background: #cc0000; }
 .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; text-align: right; }
 
-/* RODAPÉ (FOOTER) */
+/* RODAPÉ */
 footer { background: var(--primary); color: var(--light); text-align: center; padding: 3rem 1rem; margin-top: 3rem; border-top: 5px solid var(--gold); }
 footer h3 { margin: 0 0 0.5rem 0; color: var(--gold); }
-.instagram-btn { display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; transition: transform 0.3s, box-shadow 0.3s; }
-.instagram-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(220, 39, 67, 0.4); }
+.instagram-btn { display: inline-block; margin-top: 1rem; padding: 0.8rem 1.5rem; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; transition: 0.3s; }
+.instagram-btn:hover { transform: scale(1.05); }
 
 .mobile-cart-btn, .close-cart-btn, .cart-overlay { display: none; }
 .loader-container { text-align: center; padding: 3rem; }
@@ -83,8 +96,6 @@ footer h3 { margin: 0 0 0.5rem 0; color: var(--gold); }
 .toast { visibility: hidden; min-width: 250px; background-color: #25D366; color: #fff; text-align: center; border-radius: 50px; padding: 12px 20px; position: fixed; z-index: 3000; left: 50%; bottom: 20px; transform: translateX(-50%); font-size: 1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s; }
 .toast.show { visibility: visible; opacity: 1; bottom: 90px; }
 .toast.warning { background-color: #ff4d4d; }
-
-/* ANIMAÇÃO DE PULO DO CARRINHO */
 @keyframes cartBounce { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .animate-bounce { animation: cartBounce 0.4s ease-in-out; }
 
