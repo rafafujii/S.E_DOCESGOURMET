@@ -21,22 +21,47 @@
         .btn-consultar { background: #25D366; color: white; }
         .btn-consultar:hover { background: #1ebe57; }
         
-        /* Carrinho Desktop: Agora com scroll interno */
+        /* Layout Flexível do Carrinho (Trava Topo e Base) */
         .cart-sidebar { 
-            flex: 1; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #ddd; 
+            flex: 1; background: #fff; border-radius: 8px; border: 1px solid #ddd; 
             position: sticky; top: 120px; height: fit-content; max-height: calc(100vh - 140px);
             display: flex; flex-direction: column;
         }
-        #cart-items { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
         
-        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
-        .cart-controls input { width: 60px; padding: 0.2rem; margin-top: 0.5rem; }
-        .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 1rem 0; text-align: right; }
-        .info-box { background: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; flex-shrink: 0; }
+        .cart-header-mobile { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid #eee; flex-shrink: 0;
+        }
+        
+        /* Área de rolagem dos itens */
+        .cart-scroll-area {
+            flex-grow: 1; overflow-y: auto; padding: 1rem 1.5rem;
+        }
+        
+        .cart-footer {
+            padding: 1rem 1.5rem 1.5rem 1.5rem; border-top: 1px solid #eee; flex-shrink: 0; background: #fff; border-radius: 0 0 8px 8px;
+        }
+
+        .info-box { background: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
+        
+        /* Estilo dos itens no carrinho com botão de excluir */
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; gap: 10px; }
+        .cart-item-info { flex: 1; font-size: 0.95rem; line-height: 1.4; }
+        .cart-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        .qty-wrapper { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; color: #555; }
+        .cart-controls input { width: 45px; padding: 0.3rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        
+        /* Botão "X" vermelho de apagar doce */
+        .btn-remove {
+            background: #ff4d4d; color: white; border: none; border-radius: 4px; width: 26px; height: 26px;
+            font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+        }
+        .btn-remove:hover { background: #cc0000; }
+
+        .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; text-align: right; }
         
         /* Oculta elementos do Mobile no PC */
         .mobile-cart-btn, .close-cart-btn, .cart-overlay { display: none; }
-        .cart-header-mobile { display: flex; justify-content: space-between; align-items: center; }
 
         /* Aviso Flutuante (Toast) */
         .toast {
@@ -47,11 +72,10 @@
         }
         .toast.show { visibility: visible; opacity: 1; bottom: 90px; }
 
-        /* REGRAS PARA CELULAR */
+        /* REGRAS EXCLUSIVAS PARA CELULAR */
         @media (max-width: 768px) { 
             .container { flex-direction: column; } 
             
-            /* Fundo escuro quando o carrinho abre */
             .cart-overlay {
                 display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                 background: rgba(0,0,0,0.6); z-index: 1000;
@@ -64,20 +88,19 @@
                 font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 1000; cursor: pointer;
             }
 
-            /* Carrinho estilo "Gaveta" que sobe do fundo */
+            /* Gaveta do Carrinho - Ocupa no máximo 85% da tela */
             .cart-sidebar { 
                 position: fixed; bottom: -100%; top: auto; left: 0; width: 100%; 
-                height: auto; max-height: 65vh; /* Ocupa no máximo 65% da tela */
-                border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-                z-index: 1001; transition: bottom 0.3s ease-in-out; margin: 0;
+                height: auto; max-height: 85vh; border-radius: 20px 20px 0 0; 
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.3); z-index: 1001; transition: bottom 0.3s ease-in-out; margin: 0; border: none;
             }
 
             .cart-sidebar.open { bottom: 0; }
 
-            /* Botão X Maior para facilitar o toque */
+            /* Botão X Maior no topo para fechar o carrinho */
             .close-cart-btn {
                 display: block; background: none; border: none; font-size: 2rem; color: var(--primary);
-                font-weight: bold; cursor: pointer; padding: 0 10px; margin-top: -10px;
+                font-weight: bold; cursor: pointer; padding: 0 5px; line-height: 1;
             }
         }
     </style>
@@ -94,21 +117,27 @@
         <main class="menu" id="menu-container"></main>
         
         <aside class="cart-sidebar" id="cart-sidebar">
+            
             <div class="cart-header-mobile">
-                <h2 style="color: var(--primary); margin-top: 0;">Seu Pedido</h2>
+                <h2 style="color: var(--primary); margin: 0;">Seu Pedido</h2>
                 <button class="close-cart-btn" onclick="toggleMobileCart()">&times;</button>
             </div>
             
-            <div class="info-box">
-                <strong>Atenção:</strong><br>
-                • Pedido mínimo de 25 unidades por doce.<br>
-                • Encomendas com frutas requerem 4 dias de antecedência.
+            <div class="cart-scroll-area">
+                <div class="info-box">
+                    <strong>Atenção:</strong><br>
+                    • Pedido mínimo de 25 unidades por doce.<br>
+                    • Encomendas com frutas requerem 4 dias de antecedência.
+                </div>
+                
+                <div id="cart-items"><p>Seu carrinho está vazio.</p></div>
             </div>
             
-            <div id="cart-items"><p>Seu carrinho está vazio.</p></div>
-            
-            <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
-            <button class="btn" onclick="checkout()" id="checkout-btn" disabled>Finalizar Pedido (WhatsApp)</button>
+            <div class="cart-footer">
+                <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
+                <button class="btn" onclick="checkout()" id="checkout-btn" disabled>Finalizar Pedido (WhatsApp)</button>
+            </div>
+
         </aside>
     </div>
 
@@ -210,7 +239,7 @@
 
         function showToast(itemName) {
             const toast = document.getElementById("toast");
-            toast.innerText = `🛒 ${itemName} adicionado!`;
+            toast.innerText = `🛒 Adicionado!`;
             toast.classList.add("show");
             setTimeout(() => toast.classList.remove("show"), 3000);
         }
@@ -242,6 +271,12 @@
             updateCartUI();
         }
 
+        // Função nova para remover o item direto pelo botão "X"
+        function removeFromCart(id) {
+            delete cart[id];
+            updateCartUI();
+        }
+
         function updateCartUI() {
             const cartContainer = document.getElementById('cart-items');
             const totalContainer = document.getElementById('cart-total');
@@ -259,7 +294,6 @@
                 totalContainer.innerText = 'Total: R$ 0,00';
                 checkoutBtn.disabled = true;
                 
-                // Esconde o botão se o carrinho esvaziar e fecha a aba se estiver aberta
                 document.getElementById('mobile-cart-btn').style.display = 'none';
                 document.getElementById('cart-sidebar').classList.remove('open');
                 document.getElementById('cart-overlay').classList.remove('show');
@@ -272,10 +306,20 @@
                 const item = cart[id];
                 const itemTotal = item.unitPrice * item.quantity;
                 total += itemTotal;
+                
+                // HTML atualizado com o botão "X" de exclusão
                 cartContainer.innerHTML += `
                     <div class="cart-item">
-                        <div class="cart-item-info"><strong>${item.name}</strong><br>${formatCurrency(itemTotal)}</div>
-                        <div class="cart-controls">Qtd: <input type="number" min="0" step="${item.isUnitItem ? 1 : 5}" value="${item.quantity}" onchange="updateQuantity(${id}, this.value)"></div>
+                        <div class="cart-item-info">
+                            <strong>${item.name}</strong><br>
+                            ${formatCurrency(itemTotal)}
+                        </div>
+                        <div class="cart-controls">
+                            <button class="btn-remove" onclick="removeFromCart(${id})" title="Remover doce">X</button>
+                            <div class="qty-wrapper">
+                                Qtd: <input type="number" min="0" step="${item.isUnitItem ? 1 : 5}" value="${item.quantity}" onchange="updateQuantity(${id}, this.value)">
+                            </div>
+                        </div>
                     </div>
                 `;
             });
