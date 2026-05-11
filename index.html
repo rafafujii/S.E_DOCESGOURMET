@@ -3,109 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.E_DOCESGOURMET</title>
-    <style>
-        :root { --primary: #800020; --gold: #D4AF37; --light: #FDFBF7; --text: #333; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); color: var(--text); margin: 0; padding: 0; }
-        header { background: var(--primary); color: var(--gold); text-align: center; padding: 2rem 1rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; display: flex; gap: 2rem; }
-        .menu { flex: 2; }
-        .category-title { color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem; margin-top: 2rem; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
-        .product-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; }
-        .product-name { font-weight: bold; margin: 1rem 0 0.5rem; min-height: 40px; }
-        .product-price { color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; }
-        .btn { background: var(--primary); color: var(--gold); border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn:hover { background: #5a0016; }
-        .btn-consultar { background: #25D366; color: white; }
-        .btn-consultar:hover { background: #1ebe57; }
-        
-        /* Layout Flexível do Carrinho (Trava Topo e Base) */
-        .cart-sidebar { 
-            flex: 1; background: #fff; border-radius: 8px; border: 1px solid #ddd; 
-            position: sticky; top: 120px; height: fit-content; max-height: calc(100vh - 140px);
-            display: flex; flex-direction: column;
-        }
-        
-        .cart-header-mobile { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid #eee; flex-shrink: 0;
-        }
-        
-        /* Área de rolagem dos itens */
-        .cart-scroll-area {
-            flex-grow: 1; overflow-y: auto; padding: 1rem 1.5rem;
-        }
-        
-        .cart-footer {
-            padding: 1rem 1.5rem 1.5rem 1.5rem; border-top: 1px solid #eee; flex-shrink: 0; background: #fff; border-radius: 0 0 8px 8px;
-        }
-
-        .info-box { background: #fff3cd; color: #856404; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
-        
-        /* Estilo dos itens no carrinho com botão de excluir */
-        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; gap: 10px; }
-        .cart-item-info { flex: 1; font-size: 0.95rem; line-height: 1.4; }
-        .cart-controls { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-        .qty-wrapper { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; color: #555; }
-        .cart-controls input { width: 45px; padding: 0.3rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
-        
-        /* Botão "X" vermelho de apagar doce */
-        .btn-remove {
-            background: #ff4d4d; color: white; border: none; border-radius: 4px; width: 26px; height: 26px;
-            font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
-        }
-        .btn-remove:hover { background: #cc0000; }
-
-        .cart-total { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; text-align: right; }
-        
-        /* Oculta elementos do Mobile no PC */
-        .mobile-cart-btn, .close-cart-btn, .cart-overlay { display: none; }
-
-        /* Aviso Flutuante (Toast) */
-        .toast {
-            visibility: hidden; min-width: 250px; background-color: #25D366; color: #fff; text-align: center;
-            border-radius: 50px; padding: 12px 20px; position: fixed; z-index: 3000; left: 50%; bottom: 20px;
-            transform: translateX(-50%); font-size: 1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
-        }
-        .toast.show { visibility: visible; opacity: 1; bottom: 90px; }
-
-        /* REGRAS EXCLUSIVAS PARA CELULAR */
-        @media (max-width: 768px) { 
-            .container { flex-direction: column; } 
-            
-            .cart-overlay {
-                display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.6); z-index: 1000;
-            }
-            .cart-overlay.show { display: block; }
-
-            .mobile-cart-btn {
-                display: block; position: fixed; bottom: 20px; right: 20px; background-color: var(--primary);
-                color: var(--gold); border: none; padding: 15px 25px; border-radius: 50px; font-size: 1.1rem;
-                font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 1000; cursor: pointer;
-            }
-
-            /* Gaveta do Carrinho - Ocupa no máximo 85% da tela */
-            .cart-sidebar { 
-                position: fixed; bottom: -100%; top: auto; left: 0; width: 100%; 
-                height: auto; max-height: 85vh; border-radius: 20px 20px 0 0; 
-                box-shadow: 0 -5px 20px rgba(0,0,0,0.3); z-index: 1001; transition: bottom 0.3s ease-in-out; margin: 0; border: none;
-            }
-
-            .cart-sidebar.open { bottom: 0; }
-
-            /* Botão X Maior no topo para fechar o carrinho */
-            .close-cart-btn {
-                display: block; background: none; border: none; font-size: 2rem; color: var(--primary);
-                font-weight: bold; cursor: pointer; padding: 0 5px; line-height: 1;
-            }
-        }
-    </style>
+    <title>S.E_DOCESGOURMET | Catálogo</title>
+    <!-- Conectando o arquivo CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <header>
         <h1>S.E_DOCESGOURMET</h1>
         <p>Catálogo Oficial</p>
@@ -114,16 +17,21 @@
     <div id="cart-overlay" class="cart-overlay" onclick="toggleMobileCart()"></div>
 
     <div class="container">
-        <main class="menu" id="menu-container"></main>
+        <main class="menu" id="menu-container">
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <p>Sincronizando cardápio...</p>
+            </div>
+        </main>
         
         <aside class="cart-sidebar" id="cart-sidebar">
-            
             <div class="cart-header-mobile">
                 <h2 style="color: var(--primary); margin: 0;">Seu Pedido</h2>
-                <button class="close-cart-btn" onclick="toggleMobileCart()">&times;</button>
+                <button class="close-btn" onclick="toggleMobileCart()">&times;</button>
             </div>
             
             <div class="cart-scroll-area">
+                <!-- Caixa de aviso restaurada -->
                 <div class="info-box">
                     <div style="text-align: center;"><strong>ATENÇÃO:</strong></div>
                     • Pedido mínimo de 25 unidades por doce.<br>
@@ -139,209 +47,16 @@
                 <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
                 <button class="btn" onclick="checkout()" id="checkout-btn" disabled>Finalizar Pedido (WhatsApp)</button>
             </div>
-
         </aside>
     </div>
 
-    <button id="mobile-cart-btn" class="mobile-cart-btn" onclick="toggleMobileCart()">
-        🛒 Ver Carrinho (<span id="mobile-cart-count">0</span>)
+    <button id="mobile-cart-btn" class="mobile-cart-btn" onclick="toggleMobileCart()" style="display: none;">
+        🛒 Carrinho (<span id="mobile-cart-count">0</span>)
     </button>
 
-    <div id="toast" class="toast">Adicionado ao carrinho!</div>
+    <div id="toast" class="toast"></div>
 
-    <script>
-        const phone = "44998542446";
-        const sheetID = "1LnFf7VKaV4CLedmpiLsWtgt_Z9bZJKuyLrPfevybQc0"; 
-        const urlPlanilha = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv`;
-
-        let cart = {};
-        let catalog = [];
-
-        function formatCurrency(value) {
-            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        async function loadCatalog() {
-            const container = document.getElementById('menu-container');
-            container.innerHTML = "<h3 style='padding: 2rem;'>Sincronizando cardápio...</h3>";
-
-            try {
-                const response = await fetch(urlPlanilha);
-                const csvText = await response.text();
-                const rows = csvText.split('\n').slice(1);
-                const grouped = {};
-                let idCounter = 1;
-
-                rows.forEach(row => {
-                    const cols = row.split('","').map(col => col.replace(/^"|"$/g, '').trim());
-                    if (cols.length >= 2 && cols[1] !== "") {
-                        const category = cols[0];
-                        const name = cols[1];
-                        const priceCentoRaw = cols[2] ? cols[2].replace(',', '.') : "";
-                        const unitPriceRaw = cols[3] ? cols[3].replace(',', '.') : "";
-                        const priceCento = priceCentoRaw && priceCentoRaw !== "À Consultar" ? parseFloat(priceCentoRaw) : null;
-                        const unitPrice = unitPriceRaw && unitPriceRaw !== "À Consultar" ? parseFloat(unitPriceRaw) : null;
-                        let imageUrl = cols[4] || "https://via.placeholder.com/250x150.png?text=Sem+Foto";
-
-                        if (!grouped[category]) grouped[category] = { category: category, items: [] };
-                        grouped[category].items.push({ id: idCounter++, name: name, priceCento: priceCento, unitPrice: unitPrice, imageUrl: imageUrl });
-                    }
-                });
-
-                catalog = Object.values(grouped);
-                renderMenu();
-            } catch (error) {
-                container.innerHTML = "<h3 style='padding: 2rem; color: red;'>Erro de conexão. Tente novamente.</h3>";
-            }
-        }
-
-        function renderMenu() {
-            const container = document.getElementById('menu-container');
-            container.innerHTML = '';
-            
-            catalog.forEach(category => {
-                const section = document.createElement('div');
-                section.innerHTML = `<h2 class="category-title">${category.category}</h2>`;
-                const grid = document.createElement('div');
-                grid.className = 'product-grid';
-
-                category.items.forEach(item => {
-                    const isConsult = item.priceCento === null && item.unitPrice === null;
-                    const unitValue = item.unitPrice ? item.unitPrice : (item.priceCento ? item.priceCento / 100 : 0);
-                    let priceText = isConsult ? 'À Consultar' : formatCurrency(item.priceCento || (item.unitPrice * 100)) + ' / Cento';
-                    if(item.unitPrice && !item.priceCento) priceText = formatCurrency(item.unitPrice) + ' / Unidade';
-
-                    let buttonHtml = isConsult 
-                        ? `<button class="btn btn-consultar" onclick="consultWhatsApp('${item.name.replace(/'/g, "\\'")}')">Consultar no WhatsApp</button>`
-                        : `<button class="btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${unitValue}, ${item.unitPrice && !item.priceCento ? true : false})">Adicionar</button>`;
-
-                    grid.innerHTML += `
-                        <div class="product-card">
-                            <img src="${item.imageUrl}" alt="${item.name}">
-                            <div class="product-name">${item.name}</div>
-                            <div class="product-price">${priceText}</div>
-                            ${buttonHtml}
-                        </div>
-                    `;
-                });
-                section.appendChild(grid);
-                container.appendChild(section);
-            });
-        }
-
-        function toggleMobileCart() {
-            document.getElementById('cart-sidebar').classList.toggle('open');
-            document.getElementById('cart-overlay').classList.toggle('show');
-        }
-
-        function consultWhatsApp(itemName) {
-            const msg = encodeURIComponent(`Olá, Eduarda! Gostaria de consultar o valor de: ${itemName}.`);
-            window.open(`https://wa.me/55${phone}?text=${msg}`, '_blank');
-        }
-
-        function showToast(itemName) {
-            const toast = document.getElementById("toast");
-            // AQUI FOI A ÚNICA ALTERAÇÃO, INCLUINDO A VARIÁVEL itemName NO TEXTO
-            toast.innerText = `🛒 ${itemName} adicionado!`;
-            toast.classList.add("show");
-            setTimeout(() => toast.classList.remove("show"), 3000);
-        }
-
-        function addToCart(id, name, unitPrice, isUnitItem) {
-            if (!cart[id]) cart[id] = { name, unitPrice, quantity: isUnitItem ? 1 : 25, isUnitItem };
-            else cart[id].quantity += isUnitItem ? 1 : 25;
-            
-            updateCartUI();
-            showToast(name);
-            
-            const btn = document.getElementById('mobile-cart-btn');
-            if(window.innerWidth <= 768) {
-                btn.style.transform = 'scale(1.1)';
-                setTimeout(() => btn.style.transform = 'scale(1)', 200);
-            }
-        }
-
-        function updateQuantity(id, newQty) {
-            const item = cart[id];
-            newQty = parseInt(newQty);
-            if (newQty < 0) return;
-            if (!item.isUnitItem && newQty > 0 && newQty < 25) {
-                alert("O pedido mínimo para este doce é de 25 unidades.");
-                newQty = 25;
-            }
-            if (newQty === 0) delete cart[id];
-            else cart[id].quantity = newQty;
-            updateCartUI();
-        }
-
-        function removeFromCart(id) {
-            delete cart[id];
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const cartContainer = document.getElementById('cart-items');
-            const totalContainer = document.getElementById('cart-total');
-            const checkoutBtn = document.getElementById('checkout-btn');
-            const mobileCartCount = document.getElementById('mobile-cart-count');
-            
-            cartContainer.innerHTML = '';
-            let total = 0;
-            const cartKeys = Object.keys(cart);
-            
-            mobileCartCount.innerText = cartKeys.length;
-            
-            if (cartKeys.length === 0) {
-                cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
-                totalContainer.innerText = 'Total: R$ 0,00';
-                checkoutBtn.disabled = true;
-                
-                document.getElementById('mobile-cart-btn').style.display = 'none';
-                document.getElementById('cart-sidebar').classList.remove('open');
-                document.getElementById('cart-overlay').classList.remove('show');
-                return;
-            } else {
-                if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
-            }
-
-            cartKeys.forEach(id => {
-                const item = cart[id];
-                const itemTotal = item.unitPrice * item.quantity;
-                total += itemTotal;
-                
-                cartContainer.innerHTML += `
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <strong>${item.name}</strong><br>
-                            ${formatCurrency(itemTotal)}
-                        </div>
-                        <div class="cart-controls">
-                            <button class="btn-remove" onclick="removeFromCart(${id})" title="Remover doce">X</button>
-                            <div class="qty-wrapper">
-                                Qtd: <input type="number" min="0" step="${item.isUnitItem ? 1 : 5}" value="${item.quantity}" onchange="updateQuantity(${id}, this.value)">
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            totalContainer.innerText = `Total: ${formatCurrency(total)}`;
-            checkoutBtn.disabled = false;
-        }
-
-        function checkout() {
-            let msg = "Olá, Eduarda! Gostaria de fazer o seguinte pedido:\n\n";
-            let total = 0;
-            Object.keys(cart).forEach(id => {
-                const item = cart[id];
-                const itemTotal = item.unitPrice * item.quantity;
-                total += itemTotal;
-                msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
-            });
-            msg += `\n*Total do Pedido: ${formatCurrency(total)}*\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.\n\n*Chave PIX (CPF):* 039.722.899-60`;
-            window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        loadCatalog();
-    </script>
+    <!-- Conectando o arquivo JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
