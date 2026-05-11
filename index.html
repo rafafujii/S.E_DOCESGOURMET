@@ -335,7 +335,7 @@
                 total += itemTotal;
                 msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
             });
-            msg += `\n*Total do Pedido: ${formatCurrency(total)}*\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.`;
+            msg += `\n*Total do Pedido: ${formatCurrency(total)}*\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.\n\n*Chave PIX (CPF):* 039.722.899-60`;
             window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
