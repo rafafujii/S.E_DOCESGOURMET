@@ -54,7 +54,6 @@
             </div>
 
             <div class="cart-footer">
-                <!-- SELEÇÃO DE FORMINHAS -->
                 <div id="wrapper-selection" style="display: none; margin-bottom: 1rem; text-align: left;">
                     <label for="wrapper-type" style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">Tipo de Forminha:</label>
                     <select id="wrapper-type" onchange="updateCartUI()" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; font-size: 0.9rem;">
@@ -64,7 +63,6 @@
                     </select>
                 </div>
                 <div id="wrapper-cost-display" style="font-size: 0.9rem; color: #555; text-align: right; margin-bottom: 5px; display: none;"></div>
-                <!-- FIM SELEÇÃO DE FORMINHAS -->
 
                 <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
                 <button class="btn" onclick="openCheckoutModal()" id="checkout-btn" disabled>Finalizar Pedido</button>
@@ -72,6 +70,7 @@
         </aside>
     </div>
 
+    <!-- MODAL DE CHECKOUT -->
     <div id="checkout-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeCheckoutModal()">&times;</span>
@@ -102,10 +101,19 @@
                     <option value="Dinheiro">Dinheiro</option>
                 </select>
             </div>
+            
+            <!-- CAIXA DO PIX -->
+            <div class="form-group pix-box" id="pix-info-group">
+                <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: #333;"><strong>Chave PIX (CPF):</strong> <br><span style="font-size: 1.1rem; color: var(--primary);">039.722.899-60</span></p>
+                <button type="button" class="btn-copy" onclick="copyPix()">📋 Copiar Chave PIX</button>
+            </div>
+
+            <!-- CAIXA DO TROCO -->
             <div class="form-group" id="change-field-group" style="display: none;">
                 <label for="change-amount">Troco para quanto?</label>
                 <input type="text" id="change-amount" placeholder="Ex: 50, 100 (Deixe em branco se não precisar)">
             </div>
+
             <div class="form-group">
                 <label for="order-notes">Observação (Opcional):</label>
                 <textarea id="order-notes" rows="3" placeholder="Ex: Sem granulado, embalagem de presente, etc..."></textarea>
@@ -114,6 +122,13 @@
             <button class="btn btn-consultar" onclick="sendOrder()" style="margin-top: 1rem; font-size: 1.1rem;">Enviar Pedido p/ WhatsApp</button>
         </div>
     </div>
+
+    <!-- BOTÕES FLUTUANTES -->
+    <a href="https://wa.me/5544998542446?text=Olá!%20Estava%20olhando%20o%20catálogo%20e%20tenho%20uma%20dúvida..." target="_blank" class="whatsapp-float" title="Dúvidas? Fale conosco">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+        </svg>
+    </a>
 
     <button id="mobile-cart-btn" class="mobile-cart-btn" onclick="toggleMobileCart()">
         🛒 Ver Carrinho (<span id="mobile-cart-count">0</span>)
