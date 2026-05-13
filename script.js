@@ -186,7 +186,7 @@ function updateCartUI() {
     let total = 0;
     const cartKeys = Object.keys(cart);
     mobileCartCount.innerText = cartKeys.length;
-    
+
     if (cartKeys.length === 0) {
         cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
         totalContainer.innerText = 'Total: R$ 0,00';
@@ -198,7 +198,7 @@ function updateCartUI() {
     } else {
         if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
     }
-    
+
     let cartHtml = '';
     cartKeys.forEach(id => {
         const item = cart[id];
@@ -241,10 +241,11 @@ function sendOrder() {
     const name = document.getElementById('customer-name').value.trim();
     const dateInput = document.getElementById('order-date').value;
     const time = document.getElementById('order-time').value;
+    const notes = document.getElementById('order-notes').value.trim(); // NOVO: Captura a observação
 
-    // Validação de segurança: Impede o envio se estiver faltando algo
+    // Validação de segurança: Impede o envio se estiver faltando algo obrigatório
     if (!name || !dateInput || !time) {
-        showToast("Por favor, preencha todos os campos!", true);
+        showToast("Por favor, preencha todos os campos obrigatórios!", true);
         return;
     }
 
@@ -254,7 +255,7 @@ function sendOrder() {
 
     // Constrói a mensagem final pro WhatsApp
     let msg = `Olá, Eduarda! Meu nome é *${name}* e gostaria de fazer o seguinte pedido:\n\n`;
-    
+
     let total = 0;
     Object.keys(cart).forEach(id => {
         const item = cart[id];
@@ -262,19 +263,27 @@ function sendOrder() {
         total += itemTotal;
         msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
     });
-    
+
     msg += `\n*Total do Pedido: ${formatCurrency(total)}*`;
-    
+
     // Adiciona a Data e Hora escolhida
     msg += `\n\n*📅 Data para entrega/retirada:* ${formattedDate}`;
     msg += `\n*⏰ Horário:* ${time}`;
-    
+
+    // NOVO: Adiciona a observação na mensagem do WhatsApp APENAS se o cliente tiver digitado algo
+    if (notes !== "") {
+        msg += `\n*📝 Observação:* ${notes}`;
+    }
+
     msg += `\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.\n\n*Chave PIX (CPF):* 039.722.899-60`;
-    
+
     // Dispara pro WhatsApp e fecha as telas
     window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     closeCheckoutModal();
-    
+
+    // Limpa o campo de observação para o próximo pedido
+    document.getElementById('order-notes').value = ""; 
+
     // Fecha também o carrinho do celular se estiver aberto
     document.getElementById('cart-sidebar').classList.remove('open');
     document.getElementById('cart-overlay').classList.remove('show');
