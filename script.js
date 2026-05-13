@@ -15,6 +15,12 @@ function removeAcentos(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
+// Bloqueia datas passadas no calendário ao carregar
+window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('order-date').setAttribute('min', today);
+};
+
 async function loadCatalog() {
     const container = document.getElementById('menu-container');
     try {
@@ -184,12 +190,11 @@ function updateCartUI() {
     const checkoutBtn = document.getElementById('checkout-btn');
     const mobileCartCount = document.getElementById('mobile-cart-count');
     
-    // Variáveis da forminha
     const wrapperSelection = document.getElementById('wrapper-selection');
     const wrapperCostDisplay = document.getElementById('wrapper-cost-display');
 
     let total = 0;
-    let totalItems = 0; // Quantidade de doces no carrinho
+    let totalItems = 0; 
     const cartKeys = Object.keys(cart);
     mobileCartCount.innerText = cartKeys.length;
 
@@ -198,17 +203,15 @@ function updateCartUI() {
         totalContainer.innerText = 'Total: R$ 0,00';
         checkoutBtn.disabled = true;
         
-        // Esconde as opções de forminha se não tem itens
         wrapperSelection.style.display = 'none';
         wrapperCostDisplay.style.display = 'none';
-        document.getElementById('wrapper-type').value = 'Acetato'; // Reseta para o padrão
+        document.getElementById('wrapper-type').value = 'Acetato'; 
         
         document.getElementById('mobile-cart-btn').style.display = 'none';
         document.getElementById('cart-sidebar').classList.remove('open');
         document.getElementById('cart-overlay').classList.remove('show');
         return;
     } else {
-        // Mostra a seleção de forminhas e exibe botão flutuante se for mobile
         wrapperSelection.style.display = 'block';
         if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
     }
@@ -218,7 +221,7 @@ function updateCartUI() {
         const item = cart[id];
         const itemTotal = item.unitPrice * item.quantity;
         total += itemTotal;
-        totalItems += item.quantity; // Soma a quantidade para calcular o acréscimo
+        totalItems += item.quantity; 
         cartHtml += `
             <div class="cart-item">
                 <div class="cart-item-info">
@@ -235,12 +238,10 @@ function updateCartUI() {
         `;
     });
 
-    // Pega o valor da forminha selecionada e multiplica pela quantidade total de doces
     const wrapperSelect = document.getElementById('wrapper-type');
     const wrapperPrice = parseFloat(wrapperSelect.options[wrapperSelect.selectedIndex].getAttribute('data-price'));
     const wrapperTotal = totalItems * wrapperPrice;
 
-    // Se tiver acréscimo, mostra para o cliente no carrinho
     if (wrapperTotal > 0) {
         wrapperCostDisplay.innerText = `Acréscimo (Forminhas): ${formatCurrency(wrapperTotal)}`;
         wrapperCostDisplay.style.display = 'block';
@@ -248,7 +249,7 @@ function updateCartUI() {
         wrapperCostDisplay.style.display = 'none';
     }
 
-    total += wrapperTotal; // Soma o acréscimo ao total final
+    total += wrapperTotal; 
 
     cartContainer.innerHTML = cartHtml;
     totalContainer.innerText = `Total: ${formatCurrency(total)}`;
@@ -261,21 +262,34 @@ function openCheckoutModal() {
 
 function closeCheckoutModal() {
     document.getElementById('checkout-modal').classList.remove('show');
-    // Reseta o formulário caso o usuário feche
     document.getElementById('payment-method').value = 'Pix';
     toggleChangeField(); 
 }
 
-// Mostra ou esconde o campo de Troco baseado na seleção de Pagamento
+// Alterna a visualização entre PIX e Dinheiro
 function toggleChangeField() {
     const method = document.getElementById('payment-method').value;
     const changeGroup = document.getElementById('change-field-group');
+    const pixGroup = document.getElementById('pix-info-group');
+    
     if (method === 'Dinheiro') {
         changeGroup.style.display = 'flex';
+        pixGroup.style.display = 'none';
     } else {
         changeGroup.style.display = 'none';
-        document.getElementById('change-amount').value = ''; // Limpa se trocar pra Pix
+        pixGroup.style.display = 'block';
+        document.getElementById('change-amount').value = ''; 
     }
+}
+
+// Função para copiar a chave PIX
+function copyPix() {
+    const pixKey = "03972289960";
+    navigator.clipboard.writeText(pixKey).then(() => {
+        showToast("✅ Chave PIX copiada com sucesso!");
+    }).catch(err => {
+        showToast("Erro ao copiar. Tente manualmente.", true);
+    });
 }
 
 function sendOrder() {
@@ -286,7 +300,6 @@ function sendOrder() {
     const changeAmount = document.getElementById('change-amount').value.trim();
     const notes = document.getElementById('order-notes').value.trim(); 
     
-    // Captura as forminhas
     const wrapperSelect = document.getElementById('wrapper-type');
     const wrapperName = wrapperSelect.options[wrapperSelect.selectedIndex].value;
     const wrapperPrice = parseFloat(wrapperSelect.options[wrapperSelect.selectedIndex].getAttribute('data-price'));
@@ -299,7 +312,14 @@ function sendOrder() {
     const dateParts = dateInput.split('-');
     const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
-    let msg = `Olá, Eduarda! Meu nome é *${name}* e gostaria de fazer o seguinte pedido:\n\n`;
+    // Lógica da Saudação Automática baseada no horário
+    const hour = new Date().getHours();
+    let greeting = "Olá";
+    if (hour >= 5 && hour < 12) greeting = "Bom dia";
+    else if (hour >= 12 && hour < 18) greeting = "Boa tarde";
+    else greeting = "Boa noite";
+
+    let msg = `${greeting}, Eduarda! Meu nome é *${name}* e gostaria de fazer o seguinte pedido:\n\n`;
 
     let total = 0;
     let totalItems = 0;
@@ -311,7 +331,6 @@ function sendOrder() {
         msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
     });
 
-    // Adiciona a forminha e o acréscimo no WhatsApp
     msg += `\n*🧁 Forminha Escolhida:* ${wrapperName}`;
     const wrapperTotal = totalItems * wrapperPrice;
     if (wrapperTotal > 0) {
@@ -328,7 +347,6 @@ function sendOrder() {
 
     msg += `\n\n*💳 Forma de Pagamento:* ${paymentMethod}`;
     
-    // Lógica condicional para o Pagamento (Pix ou Dinheiro)
     if (paymentMethod === 'Dinheiro') {
         if (changeAmount) {
             msg += `\n*💵 Troco para:* R$ ${changeAmount}`;
@@ -347,7 +365,6 @@ function sendOrder() {
     window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     closeCheckoutModal();
 
-    // Limpa os campos para o próximo pedido
     document.getElementById('order-notes').value = ""; 
     document.getElementById('change-amount').value = ""; 
     document.getElementById('payment-method').value = "Pix";
