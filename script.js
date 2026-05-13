@@ -183,7 +183,13 @@ function updateCartUI() {
     const totalContainer = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
     const mobileCartCount = document.getElementById('mobile-cart-count');
+    
+    // Variáveis da forminha
+    const wrapperSelection = document.getElementById('wrapper-selection');
+    const wrapperCostDisplay = document.getElementById('wrapper-cost-display');
+
     let total = 0;
+    let totalItems = 0; // Quantidade de doces no carrinho
     const cartKeys = Object.keys(cart);
     mobileCartCount.innerText = cartKeys.length;
 
@@ -191,11 +197,19 @@ function updateCartUI() {
         cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
         totalContainer.innerText = 'Total: R$ 0,00';
         checkoutBtn.disabled = true;
+        
+        // Esconde as opções de forminha se não tem itens
+        wrapperSelection.style.display = 'none';
+        wrapperCostDisplay.style.display = 'none';
+        document.getElementById('wrapper-type').value = 'Acetato'; // Reseta para o padrão
+        
         document.getElementById('mobile-cart-btn').style.display = 'none';
         document.getElementById('cart-sidebar').classList.remove('open');
         document.getElementById('cart-overlay').classList.remove('show');
         return;
     } else {
+        // Mostra a seleção de forminhas e exibe botão flutuante se for mobile
+        wrapperSelection.style.display = 'block';
         if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
     }
 
@@ -204,6 +218,7 @@ function updateCartUI() {
         const item = cart[id];
         const itemTotal = item.unitPrice * item.quantity;
         total += itemTotal;
+        totalItems += item.quantity; // Soma a quantidade para calcular o acréscimo
         cartHtml += `
             <div class="cart-item">
                 <div class="cart-item-info">
@@ -219,75 +234,127 @@ function updateCartUI() {
             </div>
         `;
     });
+
+    // Pega o valor da forminha selecionada e multiplica pela quantidade total de doces
+    const wrapperSelect = document.getElementById('wrapper-type');
+    const wrapperPrice = parseFloat(wrapperSelect.options[wrapperSelect.selectedIndex].getAttribute('data-price'));
+    const wrapperTotal = totalItems * wrapperPrice;
+
+    // Se tiver acréscimo, mostra para o cliente no carrinho
+    if (wrapperTotal > 0) {
+        wrapperCostDisplay.innerText = `Acréscimo (Forminhas): ${formatCurrency(wrapperTotal)}`;
+        wrapperCostDisplay.style.display = 'block';
+    } else {
+        wrapperCostDisplay.style.display = 'none';
+    }
+
+    total += wrapperTotal; // Soma o acréscimo ao total final
+
     cartContainer.innerHTML = cartHtml;
     totalContainer.innerText = `Total: ${formatCurrency(total)}`;
     checkoutBtn.disabled = false;
 }
 
-// ---------------- LÓGICA NOVA: MODAL DE CHECKOUT ----------------
-
 function openCheckoutModal() {
-    // Abre a janela de formulário
     document.getElementById('checkout-modal').classList.add('show');
 }
 
 function closeCheckoutModal() {
-    // Fecha a janela de formulário
     document.getElementById('checkout-modal').classList.remove('show');
+    // Reseta o formulário caso o usuário feche
+    document.getElementById('payment-method').value = 'Pix';
+    toggleChangeField(); 
+}
+
+// Mostra ou esconde o campo de Troco baseado na seleção de Pagamento
+function toggleChangeField() {
+    const method = document.getElementById('payment-method').value;
+    const changeGroup = document.getElementById('change-field-group');
+    if (method === 'Dinheiro') {
+        changeGroup.style.display = 'flex';
+    } else {
+        changeGroup.style.display = 'none';
+        document.getElementById('change-amount').value = ''; // Limpa se trocar pra Pix
+    }
 }
 
 function sendOrder() {
-    // Pega os valores preenchidos pelo cliente
     const name = document.getElementById('customer-name').value.trim();
     const dateInput = document.getElementById('order-date').value;
     const time = document.getElementById('order-time').value;
-    const notes = document.getElementById('order-notes').value.trim(); // NOVO: Captura a observação
+    const paymentMethod = document.getElementById('payment-method').value;
+    const changeAmount = document.getElementById('change-amount').value.trim();
+    const notes = document.getElementById('order-notes').value.trim(); 
+    
+    // Captura as forminhas
+    const wrapperSelect = document.getElementById('wrapper-type');
+    const wrapperName = wrapperSelect.options[wrapperSelect.selectedIndex].value;
+    const wrapperPrice = parseFloat(wrapperSelect.options[wrapperSelect.selectedIndex].getAttribute('data-price'));
 
-    // Validação de segurança: Impede o envio se estiver faltando algo obrigatório
     if (!name || !dateInput || !time) {
         showToast("Por favor, preencha todos os campos obrigatórios!", true);
         return;
     }
 
-    // O HTML devolve a data em AAAA-MM-DD. Vamos inverter para DD/MM/AAAA para o WhatsApp
     const dateParts = dateInput.split('-');
     const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
-    // Constrói a mensagem final pro WhatsApp
     let msg = `Olá, Eduarda! Meu nome é *${name}* e gostaria de fazer o seguinte pedido:\n\n`;
 
     let total = 0;
+    let totalItems = 0;
     Object.keys(cart).forEach(id => {
         const item = cart[id];
         const itemTotal = item.unitPrice * item.quantity;
         total += itemTotal;
+        totalItems += item.quantity;
         msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
     });
 
-    msg += `\n*Total do Pedido: ${formatCurrency(total)}*`;
-
-    // Adiciona a Data e Hora escolhida
-    msg += `\n\n*📅 Data para entrega/retirada:* ${formattedDate}`;
-    msg += `\n*⏰ Horário:* ${time}`;
-
-    // NOVO: Adiciona a observação na mensagem do WhatsApp APENAS se o cliente tiver digitado algo
-    if (notes !== "") {
-        msg += `\n*📝 Observação:* ${notes}`;
+    // Adiciona a forminha e o acréscimo no WhatsApp
+    msg += `\n*🧁 Forminha Escolhida:* ${wrapperName}`;
+    const wrapperTotal = totalItems * wrapperPrice;
+    if (wrapperTotal > 0) {
+        msg += ` (Acréscimo: ${formatCurrency(wrapperTotal)})`;
     }
 
-    msg += `\n\nCiente do pagamento em Dinheiro ou PIX no ato da entrega.\n\n*Chave PIX (CPF):* 039.722.899-60`;
+    total += wrapperTotal; 
 
-    // Dispara pro WhatsApp e fecha as telas
+    msg += `\n\n*Total do Pedido: ${formatCurrency(total)}*`;
+
+    msg += `\n\n*📍 Retirada em:* Avenida Padre Jose Stefanello, n°340`;
+    msg += `\n*📅 Data da Retirada:* ${formattedDate}`;
+    msg += `\n*⏰ Horário:* ${time}`;
+
+    msg += `\n\n*💳 Forma de Pagamento:* ${paymentMethod}`;
+    
+    // Lógica condicional para o Pagamento (Pix ou Dinheiro)
+    if (paymentMethod === 'Dinheiro') {
+        if (changeAmount) {
+            msg += `\n*💵 Troco para:* R$ ${changeAmount}`;
+        } else {
+            msg += `\n*💵 Troco:* Não precisa`;
+        }
+        msg += `\n\nCiente do pagamento no ato da retirada.`;
+    } else if (paymentMethod === 'Pix') {
+        msg += `\n\nCiente do pagamento no ato da retirada.\n*Chave PIX (CPF):* 039.722.899-60`;
+    }
+
+    if (notes !== "") {
+        msg += `\n\n*📝 Observação:* ${notes}`;
+    }
+
     window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     closeCheckoutModal();
 
-    // Limpa o campo de observação para o próximo pedido
+    // Limpa os campos para o próximo pedido
     document.getElementById('order-notes').value = ""; 
+    document.getElementById('change-amount').value = ""; 
+    document.getElementById('payment-method').value = "Pix";
+    toggleChangeField();
 
-    // Fecha também o carrinho do celular se estiver aberto
     document.getElementById('cart-sidebar').classList.remove('open');
     document.getElementById('cart-overlay').classList.remove('show');
 }
 
-// Inicia puxando o cardápio
 loadCatalog();
