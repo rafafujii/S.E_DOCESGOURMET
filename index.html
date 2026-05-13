@@ -10,12 +10,12 @@
     <header>
         <h1>S.E_DOCESGOURMET</h1>
         <p>Catálogo Oficial</p>
-        
+
         <a href="https://instagram.com/s.e_docesgourmet" target="_blank" class="header-instagram" title="Siga-nos no Instagram">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
         </a>
     </header>
-    
+
     <div id="cart-overlay" class="cart-overlay" onclick="toggleMobileCart()"></div>
 
     <div class="container">
@@ -35,13 +35,13 @@
                 </div>
             </div>
         </main>
-        
+
         <aside class="cart-sidebar" id="cart-sidebar">
             <div class="cart-header-mobile">
                 <h2 style="color: var(--primary); margin: 0;">Seu Pedido</h2>
                 <button class="close-cart-btn" onclick="toggleMobileCart()">&times;</button>
             </div>
-            
+
             <div class="cart-scroll-area">
                 <div class="info-box">
                     <div style="text-align: center;"><strong>ATENÇÃO:</strong></div>
@@ -52,7 +52,7 @@
                 </div>
                 <div id="cart-items"><p>Seu carrinho está vazio.</p></div>
             </div>
-            
+
             <div class="cart-footer">
                 <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
                 <button class="btn" onclick="openCheckoutModal()" id="checkout-btn" disabled>Finalizar Pedido</button>
@@ -65,7 +65,7 @@
             <span class="close-modal" onclick="closeCheckoutModal()">&times;</span>
             <h2 style="color: var(--primary); margin-top: 0; text-align: center;">Detalhes da Entrega</h2>
             <p style="text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 1.5rem;">Preencha para agilizar seu atendimento.</p>
-            
+
             <div class="form-group">
                 <label for="customer-name">Seu Nome:</label>
                 <input type="text" id="customer-name" placeholder="Ex: Maria Silva" required>
@@ -78,7 +78,11 @@
                 <label for="order-time">Horário desejado:</label>
                 <input type="time" id="order-time" required>
             </div>
-            
+            <div class="form-group">
+                <label for="order-notes">Observação (Opcional):</label>
+                <textarea id="order-notes" rows="3" placeholder="Ex: Sem granulado, embalagem de presente, etc..."></textarea>
+            </div>
+
             <button class="btn btn-consultar" onclick="sendOrder()" style="margin-top: 1rem; font-size: 1.1rem;">Enviar Pedido p/ WhatsApp</button>
         </div>
     </div>
