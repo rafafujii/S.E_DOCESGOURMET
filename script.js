@@ -170,11 +170,11 @@ function showToast(msg, isWarning = false) {
 function addToCart(id, name, unitPrice, isUnitItem) {
     if (!cart[id]) cart[id] = { name, unitPrice, quantity: isUnitItem ? 1 : 25, isUnitItem };
     else cart[id].quantity += isUnitItem ? 1 : 25;
-    
+
     saveCart(); // Salva na memória
     updateCartUI();
     showToast(`🛒 ${name} adicionado!`);
-    
+
     const btn = document.getElementById('mobile-cart-btn');
     if(window.innerWidth <= 768) {
         btn.classList.remove('animate-bounce');
@@ -193,7 +193,7 @@ function updateQuantity(id, newQty) {
     }
     if (newQty === 0) delete cart[id];
     else cart[id].quantity = newQty;
-    
+
     saveCart(); // Salva na memória
     updateCartUI();
 }
@@ -209,12 +209,8 @@ function updateCartUI() {
     const totalContainer = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
     const mobileCartCount = document.getElementById('mobile-cart-count');
-    
-    const wrapperSelection = document.getElementById('wrapper-selection');
-    const wrapperCostDisplay = document.getElementById('wrapper-cost-display');
 
     let total = 0;
-    let totalItems = 0; 
     const cartKeys = Object.keys(cart);
     mobileCartCount.innerText = cartKeys.length;
 
@@ -222,17 +218,12 @@ function updateCartUI() {
         cartContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
         totalContainer.innerText = 'Total: R$ 0,00';
         checkoutBtn.disabled = true;
-        
-        wrapperSelection.style.display = 'none';
-        wrapperCostDisplay.style.display = 'none';
-        document.getElementById('wrapper-type').value = 'Acetato'; 
-        
+
         document.getElementById('mobile-cart-btn').style.display = 'none';
         document.getElementById('cart-sidebar').classList.remove('open');
         document.getElementById('cart-overlay').classList.remove('show');
         return;
     } else {
-        wrapperSelection.style.display = 'block';
         if(window.innerWidth <= 768) document.getElementById('mobile-cart-btn').style.display = 'block';
     }
 
@@ -241,7 +232,6 @@ function updateCartUI() {
         const item = cart[id];
         const itemTotal = item.unitPrice * item.quantity;
         total += itemTotal;
-        totalItems += item.quantity; 
         cartHtml += `
             <div class="cart-item">
                 <div class="cart-item-info">
@@ -258,19 +248,6 @@ function updateCartUI() {
         `;
     });
 
-    const wrapperSelect = document.getElementById('wrapper-type');
-    const wrapperPrice = parseFloat(wrapperSelect.options[wrapperSelect.selectedIndex].getAttribute('data-price'));
-    const wrapperTotal = totalItems * wrapperPrice;
-
-    if (wrapperTotal > 0) {
-        wrapperCostDisplay.innerText = `Acréscimo (Forminhas): ${formatCurrency(wrapperTotal)}`;
-        wrapperCostDisplay.style.display = 'block';
-    } else {
-        wrapperCostDisplay.style.display = 'none';
-    }
-
-    total += wrapperTotal; 
-
     cartContainer.innerHTML = cartHtml;
     totalContainer.innerText = `Total: ${formatCurrency(total)}`;
     checkoutBtn.disabled = false;
@@ -278,7 +255,7 @@ function updateCartUI() {
 
 function openCheckoutModal() {
     document.getElementById('checkout-modal').classList.add('show');
-    
+
     // Recupera o nome salvo se existir
     const savedName = localStorage.getItem('docesGourmetName');
     if (savedName) {
@@ -296,7 +273,7 @@ function toggleChangeField() {
     const method = document.getElementById('payment-method').value;
     const changeGroup = document.getElementById('change-field-group');
     const pixGroup = document.getElementById('pix-info-group');
-    
+
     if (method === 'Dinheiro') {
         changeGroup.style.display = 'flex';
         pixGroup.style.display = 'none';
@@ -323,10 +300,6 @@ function sendOrder() {
     const paymentMethod = document.getElementById('payment-method').value;
     const changeAmount = document.getElementById('change-amount').value.trim();
     const notes = document.getElementById('order-notes').value.trim(); 
-    
-    const wrapperSelect = document.getElementById('wrapper-type');
-    const wrapperName = wrapperSelect.options[wrapperSelect.selectedIndex].value;
-    const wrapperPrice = parseFloat(wrapperSelect.options[wrapperSelect.selectedIndex].getAttribute('data-price'));
 
     if (!name || !dateInput || !time) {
         showToast("Por favor, preencha todos os campos obrigatórios!", true);
@@ -348,23 +321,14 @@ function sendOrder() {
     let msg = `${greeting}, Eduarda! Meu nome é *${name}* e gostaria de fazer o seguinte pedido:\n\n`;
 
     let total = 0;
-    let totalItems = 0;
     Object.keys(cart).forEach(id => {
         const item = cart[id];
         const itemTotal = item.unitPrice * item.quantity;
         total += itemTotal;
-        totalItems += item.quantity;
         msg += `• ${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
     });
 
-    msg += `\n*🧁 Forminha Escolhida:* ${wrapperName}`;
-    const wrapperTotal = totalItems * wrapperPrice;
-    if (wrapperTotal > 0) {
-        msg += ` (Acréscimo: ${formatCurrency(wrapperTotal)})`;
-    }
-
-    total += wrapperTotal; 
-
+    msg += `\n*🧁 Forminha Escolhida:* Acetato (Padrão)`;
     msg += `\n\n*Total do Pedido: ${formatCurrency(total)}*`;
 
     msg += `\n\n*📍 Retirada em:* Avenida Padre Jose Stefanello, n°340`;
@@ -372,7 +336,7 @@ function sendOrder() {
     msg += `\n*⏰ Horário:* ${time}`;
 
     msg += `\n\n*💳 Forma de Pagamento:* ${paymentMethod}`;
-    
+
     if (paymentMethod === 'Dinheiro') {
         if (changeAmount) {
             msg += `\n*💵 Troco para:* R$ ${changeAmount}`;
@@ -398,7 +362,7 @@ function sendOrder() {
 
     // Envia pro whats
     window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-    
+
     // Limpa os campos do modal
     closeCheckoutModal();
     document.getElementById('order-notes').value = ""; 
