@@ -54,6 +54,18 @@
             </div>
 
             <div class="cart-footer">
+                <!-- SELEÇÃO DE FORMINHAS -->
+                <div id="wrapper-selection" style="display: none; margin-bottom: 1rem; text-align: left;">
+                    <label for="wrapper-type" style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">Tipo de Forminha:</label>
+                    <select id="wrapper-type" onchange="updateCartUI()" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; font-size: 0.9rem;">
+                        <option value="Acetato" data-price="0">Acetato (Padrão - Sem custo)</option>
+                        <option value="Cartolina" data-price="0.10">Cartolina (+ R$ 0,10 / unidade)</option>
+                        <option value="Flor" data-price="0.20">Flor (+ R$ 0,20 / unidade)</option>
+                    </select>
+                </div>
+                <div id="wrapper-cost-display" style="font-size: 0.9rem; color: #555; text-align: right; margin-bottom: 5px; display: none;"></div>
+                <!-- FIM SELEÇÃO DE FORMINHAS -->
+
                 <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
                 <button class="btn" onclick="openCheckoutModal()" id="checkout-btn" disabled>Finalizar Pedido</button>
             </div>
@@ -63,15 +75,20 @@
     <div id="checkout-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeCheckoutModal()">&times;</span>
-            <h2 style="color: var(--primary); margin-top: 0; text-align: center;">Detalhes da Entrega</h2>
+            <h2 style="color: var(--primary); margin-top: 0; text-align: center;">Detalhes da Retirada</h2>
             <p style="text-align: center; font-size: 0.9rem; color: #555; margin-bottom: 1.5rem;">Preencha para agilizar seu atendimento.</p>
+
+            <div class="pickup-address-box">
+                <strong>📍 Endereço para Retirada:</strong><br>
+                Avenida Padre Jose Stefanello, n°340
+            </div>
 
             <div class="form-group">
                 <label for="customer-name">Seu Nome:</label>
                 <input type="text" id="customer-name" placeholder="Ex: Maria Silva" required>
             </div>
             <div class="form-group">
-                <label for="order-date">Data da Entrega/Retirada:</label>
+                <label for="order-date">Data da Retirada:</label>
                 <input type="date" id="order-date" required>
             </div>
             <div class="form-group">
@@ -79,8 +96,19 @@
                 <input type="time" id="order-time" required>
             </div>
             <div class="form-group">
+                <label for="payment-method">Forma de Pagamento:</label>
+                <select id="payment-method" onchange="toggleChangeField()" required>
+                    <option value="Pix">PIX</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+            </div>
+            <div class="form-group" id="change-field-group" style="display: none;">
+                <label for="change-amount">Troco para quanto?</label>
+                <input type="text" id="change-amount" placeholder="Ex: 50, 100 (Deixe em branco se não precisar)">
+            </div>
+            <div class="form-group">
                 <label for="order-notes">Observação (Opcional):</label>
-                <textarea id="order-notes" rows="3" placeholder="Ex: % do cacau do brigadeiro melken, troco p/ R$200, etc..."></textarea>
+                <textarea id="order-notes" rows="3" placeholder="Ex: Sem granulado, embalagem de presente, etc..."></textarea>
             </div>
 
             <button class="btn btn-consultar" onclick="sendOrder()" style="margin-top: 1rem; font-size: 1.1rem;">Enviar Pedido p/ WhatsApp</button>
