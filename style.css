@@ -85,8 +85,8 @@ header {
 .close-modal { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--primary); line-height: 1; }
 .form-group { margin-bottom: 1rem; display: flex; flex-direction: column; text-align: left; }
 .form-group label { font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--primary); }
-.form-group input { padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; outline: none; transition: border 0.3s; font-family: inherit; }
-.form-group input:focus { border-color: var(--primary); }
+.form-group input, .form-group textarea { padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; outline: none; transition: border 0.3s; font-family: inherit; resize: vertical; }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--primary); }
 
 /* RODAPÉ */
 footer { background: var(--primary); color: var(--light); text-align: center; padding: 3rem 1rem; margin-top: 3rem; border-top: 5px solid var(--gold); }
