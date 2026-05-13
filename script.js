@@ -21,6 +21,20 @@ window.onload = function() {
     document.getElementById('order-date').setAttribute('min', today);
 };
 
+// ------ FUNÇÕES DE MEMÓRIA (LOCAL STORAGE) ------
+function saveCart() {
+    localStorage.setItem('docesGourmetCart', JSON.stringify(cart));
+}
+
+function loadCart() {
+    const saved = localStorage.getItem('docesGourmetCart');
+    if (saved) {
+        cart = JSON.parse(saved);
+        updateCartUI();
+    }
+}
+// ------------------------------------------------
+
 async function loadCatalog() {
     const container = document.getElementById('menu-container');
     try {
@@ -156,8 +170,11 @@ function showToast(msg, isWarning = false) {
 function addToCart(id, name, unitPrice, isUnitItem) {
     if (!cart[id]) cart[id] = { name, unitPrice, quantity: isUnitItem ? 1 : 25, isUnitItem };
     else cart[id].quantity += isUnitItem ? 1 : 25;
+    
+    saveCart(); // Salva na memória
     updateCartUI();
     showToast(`🛒 ${name} adicionado!`);
+    
     const btn = document.getElementById('mobile-cart-btn');
     if(window.innerWidth <= 768) {
         btn.classList.remove('animate-bounce');
@@ -176,11 +193,14 @@ function updateQuantity(id, newQty) {
     }
     if (newQty === 0) delete cart[id];
     else cart[id].quantity = newQty;
+    
+    saveCart(); // Salva na memória
     updateCartUI();
 }
 
 function removeFromCart(id) {
     delete cart[id];
+    saveCart(); // Salva na memória
     updateCartUI();
 }
 
@@ -258,6 +278,12 @@ function updateCartUI() {
 
 function openCheckoutModal() {
     document.getElementById('checkout-modal').classList.add('show');
+    
+    // Recupera o nome salvo se existir
+    const savedName = localStorage.getItem('docesGourmetName');
+    if (savedName) {
+        document.getElementById('customer-name').value = savedName;
+    }
 }
 
 function closeCheckoutModal() {
@@ -266,7 +292,6 @@ function closeCheckoutModal() {
     toggleChangeField(); 
 }
 
-// Alterna a visualização entre PIX e Dinheiro
 function toggleChangeField() {
     const method = document.getElementById('payment-method').value;
     const changeGroup = document.getElementById('change-field-group');
@@ -282,7 +307,6 @@ function toggleChangeField() {
     }
 }
 
-// Função para copiar a chave PIX
 function copyPix() {
     const pixKey = "03972289960";
     navigator.clipboard.writeText(pixKey).then(() => {
@@ -309,10 +333,12 @@ function sendOrder() {
         return;
     }
 
+    // Salva o nome para as próximas compras do cliente
+    localStorage.setItem('docesGourmetName', name);
+
     const dateParts = dateInput.split('-');
     const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
-    // Lógica da Saudação Automática baseada no horário
     const hour = new Date().getHours();
     let greeting = "Olá";
     if (hour >= 5 && hour < 12) greeting = "Bom dia";
@@ -362,9 +388,19 @@ function sendOrder() {
         msg += `\n\n*📝 Observação:* ${notes}`;
     }
 
-    window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-    closeCheckoutModal();
+    // DISPARA O CONFETE NAS CORES DA MARCA
+    confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#800020', '#D4AF37', '#ffffff'] // Bordô, Dourado e Branco
+    });
 
+    // Envia pro whats
+    window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    
+    // Limpa os campos do modal
+    closeCheckoutModal();
     document.getElementById('order-notes').value = ""; 
     document.getElementById('change-amount').value = ""; 
     document.getElementById('payment-method').value = "Pix";
@@ -372,6 +408,13 @@ function sendOrder() {
 
     document.getElementById('cart-sidebar').classList.remove('open');
     document.getElementById('cart-overlay').classList.remove('show');
+
+    // Esvazia o carrinho e salva a memória vazia
+    cart = {};
+    saveCart();
+    updateCartUI();
 }
 
+// Inicia puxando o cardápio e a memória do carrinho
 loadCatalog();
+loadCart();
