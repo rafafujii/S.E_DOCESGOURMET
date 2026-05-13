@@ -47,23 +47,12 @@
                     <div style="text-align: center;"><strong>ATENÇÃO:</strong></div>
                     • Pedido mínimo de 25 unidades por doce.<br>
                     • Encomendas com frutas requerem 4 dias de antecedência.<br>
-                    • Todos os doces são colocados em forminha de acetato.<br>
-                    • Caso queira mudar, podemos colocar em forminha de cartolina ou em forminha de flores com devido acréscimo.
+                    • Todos os doces são colocados em forminha de acetato.
                 </div>
                 <div id="cart-items"><p>Seu carrinho está vazio.</p></div>
             </div>
 
             <div class="cart-footer">
-                <div id="wrapper-selection" style="display: none; margin-bottom: 1rem; text-align: left;">
-                    <label for="wrapper-type" style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">Tipo de Forminha:</label>
-                    <select id="wrapper-type" onchange="updateCartUI()" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; font-size: 0.9rem;">
-                        <option value="Acetato" data-price="0">Acetato (Padrão - Sem custo)</option>
-                        <option value="Cartolina" data-price="0.10">Cartolina (+ R$ 0,10 / unidade)</option>
-                        <option value="Flor" data-price="0.20">Flor (+ R$ 0,20 / unidade)</option>
-                    </select>
-                </div>
-                <div id="wrapper-cost-display" style="font-size: 0.9rem; color: #555; text-align: right; margin-bottom: 5px; display: none;"></div>
-
                 <div class="cart-total" id="cart-total">Total: R$ 0,00</div>
                 <button class="btn" onclick="openCheckoutModal()" id="checkout-btn" disabled>Finalizar Pedido</button>
             </div>
@@ -101,7 +90,7 @@
                     <option value="Dinheiro">Dinheiro</option>
                 </select>
             </div>
-            
+
             <!-- CAIXA DO PIX -->
             <div class="form-group pix-box" id="pix-info-group">
                 <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: #333;"><strong>Chave PIX (CPF):</strong> <br><span style="font-size: 1.1rem; color: var(--primary);">039.722.899-60</span></p>
